@@ -19,18 +19,20 @@ public class UserRepository : IUserRepository
         return await cursor.FirstOrDefaultAsync();
     }
 
-    public Task Create(User newUser)
+    public async Task Create(User newUser)
     {
-        throw new NotImplementedException();
+        await _db.Users.InsertOneAsync(newUser);
     }
 
-    public Task<bool> Update(User newUser)
+    public async Task<bool> Update(User newUser)
     {
-        throw new NotImplementedException();
+        var replaceResult = await _db.Users.ReplaceOneAsync(x => x.Id == newUser.Id, newUser);
+        return replaceResult.IsAcknowledged && replaceResult.ModifiedCount == 1;
     }
 
-    public Task<bool> Delete(string id)
+    public async Task<bool> Delete(string id)
     {
-        throw new NotImplementedException();
+        var deleteResult = await _db.Users.DeleteOneAsync(x => x.Id == id);
+        return deleteResult.IsAcknowledged && deleteResult.DeletedCount == 1;
     }
 }
