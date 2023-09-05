@@ -1,6 +1,6 @@
-﻿namespace SkedAuthoriztion.DAL.Infrastructure;
+namespace SkedAuthoriztion.DAL.DbContext.Options;
 
-public interface IUserCollectionSettings 
+public class MongoOptions
 {
     public string ConnectionString { get; set; }
     public string DatabaseName { get; set; }

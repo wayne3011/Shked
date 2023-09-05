@@ -57,8 +57,8 @@ public class AuthService : IAuthService
         var userId = claims.Claims.First(x => x.Type == ClaimTypes.Name).Value;
         var user = await _users.GetById(userId);
         if (user == null) return null;
-        if (!user.Devices.Contains(refreshToken)) return null;
-        else IssueToken(userId);
+        if (!user.Devices.Contains(refreshToken)) return null;     
+        return IssueToken(userId);
     }
 
     private AuthDTO IssueToken(string id)
