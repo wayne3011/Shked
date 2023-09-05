@@ -1,5 +1,8 @@
-using SkedAuthorization.Application.DTO;
+using Microsoft.AspNetCore.Authorization;
+using SkedAuthorization.Application.Data.DTO;
+using SkedAuthorization.Application.Data.Responses;
 using SkedAuthorization.Application.Infrastructure;
+using SkedAuthorization.Application.Services;
 
 namespace SkedAuthorization.UI.Controller;
 
@@ -15,20 +18,99 @@ public class AuthController : Controller
     [HttpPost]
     public async Task<ActionResult<AuthDTO>> SignUp(SignUpDTO signUpDto)
     {
-        return Ok(await _service.SignUpAsync(signUpDto));
+        var result = await _service.SignUpAsync(signUpDto);
+        if (result.Code == AuthResultCode.EmailOccupied)
+        {
+            return BadRequest(new ErrorViewModel()
+                { 
+                    errorCode = (int)result.Code, 
+                    errorMsg = "This email is already busy." 
+                });
+        }
+        return Ok((await _service.SignUpAsync(signUpDto)).Value);
     }
     [HttpGet]
     public async Task<ActionResult<AuthDTO>> SignIn([FromQuery]string email,[FromQuery] string passHash)
     {
-        var authDto = await _service.SignInAsync(email, passHash);
-        if (authDto == null) return Unauthorized();
-        return Ok(authDto);
+        var result = await _service.SignInAsync(email, passHash);
+        if (result.Code == AuthResultCode.InvalidEmail || result.Code == AuthResultCode.InvalidPass)
+        {
+            var error = new ErrorViewModel() 
+                { 
+                    errorCode = (int)result.Code, 
+                    errorMsg = "Invalid login information." 
+                };
+            return BadRequest(error);
+        }
+        return Ok(result.Value);
     }
     [HttpGet]
     public async Task<ActionResult<AuthDTO>> Refresh ([FromQuery]string refreshToken)
     {
-        var authDto = await _service.RefreshTokenAsync(refreshToken);
-        if (authDto == null) return null;
-        return Ok(authDto);
+        var result = await _service.RefreshTokenAsync(refreshToken);
+        if (result.Code == AuthResultCode.InvalidUserId)
+        {
+            var error = new ErrorViewModel()
+            {
+                errorCode = (int)result.Code,
+                errorMsg = "Invalid User ID."
+            };
+            return NotFound(error);
+        }
+        if (result.Code == AuthResultCode.InvalidRefreshToken)
+        {
+            var error = new ErrorViewModel()
+            {
+                errorCode = (int)result.Code,
+                errorMsg = "Invalid Refresh Token."
+            };
+            return BadRequest(error);
+        }
+        return Ok(result.Value);
+    }
+
+    [HttpDelete]
+    [Authorize]
+    public async Task<ActionResult> Logout([FromQuery] string refreshToken)
+    {
+        var result = await _service.Logout(refreshToken);
+        if (result.Code == AuthResultCode.InvalidUserId)
+        {
+            var error = new ErrorViewModel()
+            {
+                errorCode = (int)result.Code,
+                errorMsg = "Invalid User ID."
+            };
+            return NotFound(error);
+        }
+
+        if (result.Code == AuthResultCode.InvalidRefreshToken)
+        {
+            var error = new ErrorViewModel()
+            {
+                errorCode = (int)result.Code,
+                errorMsg = "Invalid Refresh Token."
+            };
+        }
+
+        return Ok();
+    }
+
+    [HttpDelete]
+    [Authorize]
+    public async Task<ActionResult> LogoutFromAll()
+    {
+        var result = await _service.LogoutFromAll(this.HttpContext.User.Identity.Name);
+        if (result.Code == AuthResultCode.InvalidUserId)
+        {
+            var error = new ErrorViewModel()
+            {
+                errorCode = (int)result.Code,
+                errorMsg = "Invalid User ID."
+            };
+            return NotFound(error);
+        }
+
+        return Ok();
     }
 }

@@ -1,10 +1,13 @@
-﻿using SkedAuthorization.Application.DTO;
+﻿using SkedAuthorization.Application.Data.DTO;
+using SkedAuthorization.Application.Data.Responses;
 
 namespace SkedAuthorization.Application.Infrastructure;
 
 public interface IAuthService
 {
-    Task<AuthDTO> SignUpAsync(SignUpDTO signUpDto);
-    Task<AuthDTO?> SignInAsync(string email, string passHash);
-    Task<AuthDTO?> RefreshTokenAsync(string refreshToken);
+    Task<AuthResult<AuthDTO>> SignUpAsync(SignUpDTO signUpDto);
+    Task<AuthResult<AuthDTO>> SignInAsync(string email, string passHash);
+    Task<AuthResult<AuthDTO>> RefreshTokenAsync(string refreshToken);
+    Task<AuthResult> Logout(string refreshToken);
+    Task<AuthResult> LogoutFromAll(string id);
 }

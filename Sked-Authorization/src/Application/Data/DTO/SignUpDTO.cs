@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace SkedAuthorization.Application.DTO;
+namespace SkedAuthorization.Application.Data.DTO;
 
 public class SignUpDTO
 {

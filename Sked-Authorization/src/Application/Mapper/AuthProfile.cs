@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using SkedAuthorization.Application.DTO;
+using SkedAuthorization.Application.Data.DTO;
 using SkedAuthorization.DAL.Entities;
 
 namespace SkedAuthorization.Application.Mapper;

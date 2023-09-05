@@ -22,8 +22,7 @@
       </Content>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="src\Application\" />
-    </ItemGroup>
+
+
 
 </Project>

@@ -15,8 +15,7 @@ public class UserRepository : IUserRepository
     }
     public async Task<User?> GetById(string id)
     {
-        var filter = new BsonDocument() { { "Id", id } };
-        var cursor = await _db.Users.FindAsync<User>(filter);
+        var cursor = await _db.Users.FindAsync<User>(x => x.Id == id);
         return (await cursor.ToListAsync()).FirstOrDefault();
     }
 
