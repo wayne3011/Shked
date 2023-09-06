@@ -16,7 +16,7 @@ public class AuthController : Controller
         _service = service;
     }
     [HttpPost]
-    public async Task<ActionResult<AuthDTO>> SignUp(SignUpDTO signUpDto)
+    public async Task<ActionResult<AuthDTO>> SignUp([FromBody]SignUpDTO signUpDto)
     {
         var result = await _service.SignUpAsync(signUpDto);
         if (result.Code == AuthResultCode.EmailOccupied)
@@ -27,7 +27,16 @@ public class AuthController : Controller
                     errorMsg = "This email is already busy." 
                 });
         }
-        return Ok((await _service.SignUpAsync(signUpDto)).Value);
+
+        if (result.Code == AuthResultCode.InvalidEmail)
+        {
+            return BadRequest(new ErrorViewModel()
+            {
+                errorCode = (int)result.Code,
+                errorMsg = "Invalid email address."
+            });
+        }
+        return Ok(result.Value);
     }
     [HttpGet]
     public async Task<ActionResult<AuthDTO>> SignIn([FromQuery]string email,[FromQuery] string passHash)

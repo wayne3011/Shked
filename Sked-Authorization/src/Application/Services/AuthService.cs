@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
+using FluentValidation;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SkedAuthorization.Application.Data.DTO;
@@ -19,15 +20,23 @@ public class AuthService : IAuthService
     private readonly IUserRepository _users;
     private readonly IMapper _mapper;
     private readonly IOptions<AuthOptions> _options;
-    public AuthService(IUserRepository users, IMapper mapper, IOptions<AuthOptions> options)
+    private readonly IValidator<SignUpDTO> _validator;
+    public AuthService(IUserRepository users, IMapper mapper, IOptions<AuthOptions> options, IValidator<SignUpDTO> validator)
     {
         _users = users;
         _mapper = mapper;
         _options = options;
+        _validator = validator;
     }
     
     public async Task<AuthResult<AuthDTO>> SignUpAsync(SignUpDTO signUpDto)
     {
+        // var validationResult = await _validator.ValidateAsync(signUpDto);
+        // if (!validationResult.IsValid)
+        // {
+        //     return new AuthResult<AuthDTO>(null,AuthResultCode.EmptyArgument);
+        //     
+        // }
         if(await _users.GetByEmail(signUpDto.Email) != null) return new AuthResult<AuthDTO>(null,AuthResultCode.EmailOccupied);
         var newUser = _mapper.Map<SignUpDTO, User>(signUpDto);
         newUser.Id = Guid.NewGuid().ToString();

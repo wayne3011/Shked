@@ -4,7 +4,6 @@ public class AuthResult<T>
 {
     public T? Value { get; }
     public AuthResultCode Code { get; }
-
     public AuthResult(T? value, AuthResultCode code)
     {
         Value = value;
@@ -28,5 +27,6 @@ public enum AuthResultCode
     InvalidEmail,
     InvalidPass,
     InvalidUserId,
-    InvalidRefreshToken
+    InvalidRefreshToken,
+    EmptyArgument
 }
