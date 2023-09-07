@@ -21,9 +21,9 @@ public class SignUpDTOValidator : AbstractValidator<SignUpDTO>
             .WithErrorCode(Convert.ToString((int)AuthResultCode.EmptyFullName));
         
         RuleFor(x => x.PassHash)
-            .Must((rootObj,s) => !string.IsNullOrEmpty(s) && s.Length > 7 && s != rootObj.Email && s.Any(char.IsLower) && s.Any(char.IsUpper) && s.Any(char.IsDigit))
-            .WithMessage("Invalid Pass Hash argument.")
-            .WithErrorCode(Convert.ToString((int)AuthResultCode.InvalidPass));
+            .NotEmpty()
+            .WithMessage("Empty Pass Hash argument.")
+            .WithErrorCode(Convert.ToString((int)AuthResultCode.EmptyPassHash));
         
         RuleFor(x => x.Group).NotEmpty().WithMessage("Invalid Group argument.")
             .WithErrorCode(Convert.ToString((int)AuthResultCode.InvalidGroup)); //TODO: Group validation

@@ -40,5 +40,7 @@ public enum AuthResultCode
     InvalidUserId,
     InvalidRefreshToken,
     EmptyFullName,
-    InvalidGroup
+    InvalidGroup,
+    InvalidCredentials,
+    EmptyPassHash,
 }
