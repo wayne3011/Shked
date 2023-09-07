@@ -42,5 +42,5 @@ public enum AuthResultCode
     EmptyFullName,
     InvalidGroup,
     InvalidCredentials,
-    EmptyPassHash,
+    EmptyPassword,
 }

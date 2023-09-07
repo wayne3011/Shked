@@ -1,14 +1,8 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using AutoMapper;
+﻿using AutoMapper;
 using FluentValidation;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using SkedAuthorization.Application.Data.DTO;
 using SkedAuthorization.Application.Data.Responses;
 using SkedAuthorization.Application.Infrastructure;
-using SkedAuthorization.Application.Services.Options;
 using SkedAuthorization.DAL.Entities;
 using SkedAuthorization.DAL.Infrastructure;
 using SkedAuthorization.Application.Extensions;
@@ -38,9 +32,11 @@ public class AuthService : IAuthService
         {
             return new AuthResult<AuthDTO>(null, validationResult.Errors.ToValidationErrorsList());
         }
+
         
         var newUser = _mapper.Map<SignUpDTO, User>(signUpDto);
         newUser.Id = Guid.NewGuid().ToString();
+        newUser.PassHash = BCrypt.Net.BCrypt.HashPassword(signUpDto.Password, 16);
         
         var authDto = _tokenManager.IssueToken(newUser.Id);
         newUser.Devices = new List<string> { authDto.RefreshToken };
@@ -65,7 +61,7 @@ public class AuthService : IAuthService
             });
         }
 
-        if (user.PassHash != signInDto.PassHash)
+        if (!BCrypt.Net.BCrypt.Verify(signInDto.Password, user.PassHash))
         {
             return new AuthResult<AuthDTO>(null, new List<ValidationError>
             {

@@ -20,10 +20,15 @@ public class SignUpDTOValidator : AbstractValidator<SignUpDTO>
         RuleFor(x => x.FullName).NotEmpty().WithMessage("Empty Full Name argument.")
             .WithErrorCode(Convert.ToString((int)AuthResultCode.EmptyFullName));
         
-        RuleFor(x => x.PassHash)
+        RuleFor(x => x.Password)
             .NotEmpty()
             .WithMessage("Empty Pass Hash argument.")
-            .WithErrorCode(Convert.ToString((int)AuthResultCode.EmptyPassHash));
+            .WithErrorCode(Convert.ToString((int)AuthResultCode.EmptyPassword));
+
+        RuleFor(x => x.Password)
+            .Must(x => x.Length > 7 && x.Any(char.IsUpper) && x.Any(char.IsLower) && x.Any(char.IsDigit))
+            .WithMessage("Invalid password")
+            .WithErrorCode(Convert.ToString((int)AuthResultCode.InvalidPass));
         
         RuleFor(x => x.Group).NotEmpty().WithMessage("Invalid Group argument.")
             .WithErrorCode(Convert.ToString((int)AuthResultCode.InvalidGroup)); //TODO: Group validation

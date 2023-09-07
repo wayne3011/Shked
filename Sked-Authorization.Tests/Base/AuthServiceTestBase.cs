@@ -56,7 +56,7 @@ public class AuthServiceTestBase
         var mock = new Mock<IMapper>();
         mock.Setup(obj => obj.Map<SignUpDTO, User>(It.IsAny<SignUpDTO>()))
             .Returns<SignUpDTO>((obj) => new User()
-                { Email = obj.Email, PassHash = obj.PassHash, Group = obj.Group, FullName = obj.FullName });
+                { Email = obj.Email, PassHash = obj.Password, Group = obj.Group, FullName = obj.FullName });
         return mock.Object;
     } 
 }

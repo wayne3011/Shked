@@ -10,28 +10,28 @@ public class EmptyPropSignUpData : TheoryData<SignUpDTO>
         {
             Email = "",
             FullName = "Ivan Ivanov",
-            PassHash = "$2a$16$ZGBbp6Ed4YH9Z2h8ELiR0.HeoI.ExdIANlsr0S1erMhd2.kVGWz06",
+            Password = "$2a$16$ZGBbp6Ed4YH9Z2h8ELiR0.HeoI.ExdIANlsr0S1erMhd2.kVGWz06",
             Group = "М3О-100Бк-23"
         });
         Add(new SignUpDTO()
         {
             Email = "test@mail.ru",
             FullName = "",
-            PassHash = "$2a$16$ZGBbp6Ed4YH9Z2h8ELiR0.HeoI.ExdIANlsr0S1erMhd2.kVGWz06",
+            Password = "$2a$16$ZGBbp6Ed4YH9Z2h8ELiR0.HeoI.ExdIANlsr0S1erMhd2.kVGWz06",
             Group = "М3О-100Бк-23"
         });
         Add(new SignUpDTO()
         {
             Email = "test@mail.ru",
             FullName = "Ivan Ivanov",
-            PassHash = "",
+            Password = "",
             Group = "М3О-100Бк-23"
         });
         Add(new SignUpDTO()
         {
             Email = "test@mail.ru",
             FullName = "Ivan Ivanov",
-            PassHash = "$2a$16$ZGBbp6Ed4YH9Z2h8ELiR0.HeoI.ExdIANlsr0S1erMhd2.kVGWz06",
+            Password = "$2a$16$ZGBbp6Ed4YH9Z2h8ELiR0.HeoI.ExdIANlsr0S1erMhd2.kVGWz06",
             Group = ""
         });
     }    

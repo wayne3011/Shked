@@ -38,7 +38,7 @@ public class AuthServiceTests : AuthServiceTestBase
         {
             Email = "test@mail.ru",
             FullName = "Ivan Ivanov",
-            PassHash = "$2a$16$ZGBbp6Ed4YH9Z2h8ELiR0.HeoI.ExdIANlsr0S1erMhd2.kVGWz06",
+            Password = "$2a$16$ZGBbp6Ed4YH9Z2h8ELiR0.HeoI.ExdIANlsr0S1erMhd2.kVGWz06",
             Group = "М3О-100Бк-23"
         };
 
@@ -73,6 +73,6 @@ public class AuthServiceTests : AuthServiceTestBase
         Assert.True(result.ValidateErrors.Count == 1 && (result.ValidateErrors[0].ErrorCode == (int)AuthResultCode.EmptyFullName 
                                                      || result.ValidateErrors[0].ErrorCode == (int)AuthResultCode.InvalidEmail
                                                      || result.ValidateErrors[0].ErrorCode == (int)AuthResultCode.InvalidGroup
-                                                     || result.ValidateErrors[0].ErrorCode == (int)AuthResultCode.EmptyPassHash));
+                                                     || result.ValidateErrors[0].ErrorCode == (int)AuthResultCode.EmptyPassword));
     }
 }
