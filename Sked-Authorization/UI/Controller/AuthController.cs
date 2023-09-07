@@ -19,62 +19,24 @@ public class AuthController : Controller
     public async Task<ActionResult<AuthDTO>> SignUp([FromBody]SignUpDTO signUpDto)
     {
         var result = await _service.SignUpAsync(signUpDto);
-        if (result.Code == AuthResultCode.EmailOccupied)
+        if (result.ValidateErrors != null)
         {
-            return BadRequest(new ErrorViewModel()
-                { 
-                    errorCode = (int)result.Code, 
-                    errorMsg = "This email is already busy." 
-                });
-        }
-
-        if (result.Code == AuthResultCode.InvalidEmail)
-        {
-            return BadRequest(new ErrorViewModel()
-            {
-                errorCode = (int)result.Code,
-                errorMsg = "Invalid email address."
-            });
+            return BadRequest(result.ValidateErrors);
         }
         return Ok(result.Value);
     }
     [HttpGet]
-    public async Task<ActionResult<AuthDTO>> SignIn([FromQuery]string email,[FromQuery] string passHash)
+    public async Task<ActionResult<AuthDTO>> SignIn([FromQuery] SignInDTO signInDto)
     {
-        var result = await _service.SignInAsync(email, passHash);
-        if (result.Code == AuthResultCode.InvalidEmail || result.Code == AuthResultCode.InvalidPass)
-        {
-            var error = new ErrorViewModel() 
-                { 
-                    errorCode = (int)result.Code, 
-                    errorMsg = "Invalid login information." 
-                };
-            return BadRequest(error);
-        }
+        var result = await _service.SignInAsync(signInDto);
+        if (result.ValidateErrors != null) return BadRequest(result.ValidateErrors);
         return Ok(result.Value);
     }
     [HttpGet]
     public async Task<ActionResult<AuthDTO>> Refresh ([FromQuery]string refreshToken)
     {
         var result = await _service.RefreshTokenAsync(refreshToken);
-        if (result.Code == AuthResultCode.InvalidUserId)
-        {
-            var error = new ErrorViewModel()
-            {
-                errorCode = (int)result.Code,
-                errorMsg = "Invalid User ID."
-            };
-            return NotFound(error);
-        }
-        if (result.Code == AuthResultCode.InvalidRefreshToken)
-        {
-            var error = new ErrorViewModel()
-            {
-                errorCode = (int)result.Code,
-                errorMsg = "Invalid Refresh Token."
-            };
-            return BadRequest(error);
-        }
+        if (result.ValidateErrors != null) return BadRequest(result.ValidateErrors);
         return Ok(result.Value);
     }
 

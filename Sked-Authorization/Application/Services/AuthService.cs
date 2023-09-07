@@ -20,55 +20,83 @@ public class AuthService : IAuthService
     private readonly IUserRepository _users;
     private readonly IMapper _mapper;
     private readonly IOptions<AuthOptions> _options;
-    private readonly IValidator<SignUpDTO> _validator;
-    public AuthService(IUserRepository users, IMapper mapper, IOptions<AuthOptions> options, IValidator<SignUpDTO> validator)
+    private readonly IValidator<SignUpDTO> _signUpValidator;
+    private readonly IValidator<SignInDTO> _signInValidator;
+    public AuthService(IUserRepository users, IMapper mapper, IOptions<AuthOptions> options, IValidator<SignUpDTO> signUpValidator, IValidator<SignInDTO> signInValidator)
     {
         _users = users;
         _mapper = mapper;
         _options = options;
-        _validator = validator;
+        _signUpValidator = signUpValidator;
+        _signInValidator = signInValidator;
     }
     
     public async Task<AuthResult<AuthDTO>> SignUpAsync(SignUpDTO signUpDto)
     {
-        // var validationResult = await _validator.ValidateAsync(signUpDto);
-        // if (!validationResult.IsValid)
-        // {
-        //     return new AuthResult<AuthDTO>(null,AuthResultCode.EmptyArgument);
-        //     
-        // }
-        if(await _users.GetByEmail(signUpDto.Email) != null) return new AuthResult<AuthDTO>(null,AuthResultCode.EmailOccupied);
+        var validationResult = await _signUpValidator.ValidateAsync(signUpDto);
+        if (!validationResult.IsValid)
+        {
+            return new AuthResult<AuthDTO>(null, validationResult.Errors.ToValidationErrorsList());
+        }
+        
         var newUser = _mapper.Map<SignUpDTO, User>(signUpDto);
         newUser.Id = Guid.NewGuid().ToString();
+        
         var authDto = IssueToken(newUser.Id);
-        newUser.Devices = new List<string>() { authDto.RefreshToken };
+        newUser.Devices = new List<string> { authDto.RefreshToken };
         await _users.Create(newUser);
-        return new AuthResult<AuthDTO>(authDto, AuthResultCode.Ok);
+        
+        return new AuthResult<AuthDTO>(authDto, null);
     }
 
-    public async Task<AuthResult<AuthDTO>> SignInAsync(string email, string passHash)
+    public async Task<AuthResult<AuthDTO>> SignInAsync(SignInDTO signInDto)
     {
-        var user = await _users.GetByEmail(email);
-        if (user == null) return new AuthResult<AuthDTO>(null,AuthResultCode.InvalidEmail);
-        if (user.PassHash != passHash) return new AuthResult<AuthDTO>(null,AuthResultCode.InvalidPass);
+        var validateResult = await _signInValidator.ValidateAsync(signInDto);
+        if (!validateResult.IsValid)
+        {
+            return new AuthResult<AuthDTO>(null, validateResult.Errors.ToValidationErrorsList());
+        }
+        var user = await _users.GetByEmail(signInDto.Email);
+        if (user == null)
+        {
+            return new AuthResult<AuthDTO>(null,new List<ValidationError>
+            {
+                new (){ ErrorCode = (int)AuthResultCode.InvalidEmail, ErrorMessage = "Invalid Email Address." }
+            });
+        }
+
+        if (user.PassHash != signInDto.PassHash)
+        {
+            return new AuthResult<AuthDTO>(null, new List<ValidationError>
+            {
+                new(){ ErrorCode = (int)AuthResultCode.InvalidPass, ErrorMessage = "Invalid Pass." }
+            });
+        }
+        
         var authDto = IssueToken(user.Id);
         (user.Devices as List<string>).Add(authDto.RefreshToken);
         await _users.Update(user);
-        return new AuthResult<AuthDTO>(authDto,AuthResultCode.Ok);
+        
+        return new AuthResult<AuthDTO>(authDto,null);
     }
 
     public async Task<AuthResult<AuthDTO>> RefreshTokenAsync(string refreshToken)
     {
 
         var userId = GetUserId(refreshToken); 
-        if(userId == null) return new AuthResult<AuthDTO>(null, AuthResultCode.InvalidRefreshToken);
+        if(userId == null) return new AuthResult<AuthDTO>(null, new List<ValidationError>
+        {
+            new ValidationError{ ErrorCode = (int)AuthResultCode.InvalidRefreshToken, ErrorMessage = "Invalid Refresh Token." }
+        });
         var user = await _users.GetById(userId);
-        if (user == null) return new AuthResult<AuthDTO>(null,AuthResultCode.InvalidUserId);
-        if (!user.Devices.Contains(refreshToken)) return new AuthResult<AuthDTO>(null,AuthResultCode.InvalidRefreshToken);
+        if (user == null || !user.Devices.Contains(refreshToken)) return new AuthResult<AuthDTO>(null, new List<ValidationError>
+        {
+            new ValidationError{ ErrorCode = (int)AuthResultCode.InvalidRefreshToken, ErrorMessage = "Invalid Refresh Token." }
+        });
         var authDto = IssueToken(userId);
         (user.Devices as List<string>).ReplaceFirst(refreshToken, authDto.RefreshToken);
         await _users.Update(user);
-        return new AuthResult<AuthDTO>(authDto,AuthResultCode.Ok);
+        return new AuthResult<AuthDTO>(authDto,null);
     }
 
     public async Task<AuthResult> Logout(string refreshToken)
