@@ -25,7 +25,7 @@ public class TokenManager : ITokenManager
             issuer: _options.Value.Issuer,
             audience: _options.Value.Audience,
             claims: claims,
-            signingCredentials: new SigningCredentials(_options.Value.SymmetricSecurityKey,
+            signingCredentials: new SigningCredentials(_options.Value.SymmetricSecurityKeyAccess,
                 SecurityAlgorithms.HmacSha256),
             expires: DateTime.UtcNow.AddMinutes(_options.Value.AccessTokenLifetimeMinutes)
         );
@@ -33,7 +33,7 @@ public class TokenManager : ITokenManager
             issuer: _options.Value.Issuer,
             audience: _options.Value.Audience,
             claims: claims,
-            signingCredentials: new SigningCredentials(_options.Value.SymmetricSecurityKey,
+            signingCredentials: new SigningCredentials(_options.Value.SymmetricSecurityKeyRefresh,
                 SecurityAlgorithms.HmacSha256),
             expires: DateTime.UtcNow.AddDays(_options.Value.RefreshTokenLifetimeDays)
         );
@@ -56,7 +56,7 @@ public class TokenManager : ITokenManager
             ValidateAudience = true,
             ValidAudience = _options.Value.Audience,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Value.Secret))
+            IssuerSigningKey = _options.Value.SymmetricSecurityKeyRefresh
         };
         var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
         ClaimsPrincipal claims;

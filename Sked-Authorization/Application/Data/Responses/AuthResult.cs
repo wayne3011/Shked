@@ -36,11 +36,12 @@ public enum AuthResultCode
     EmailOccupied,
     Ok,
     InvalidEmail,
+    EmptyEmail,
     InvalidPass,
     InvalidUserId,
     InvalidRefreshToken,
     EmptyFullName,
-    InvalidGroup,
+    EmptyGroup,
     InvalidCredentials,
     EmptyPassword,
 }

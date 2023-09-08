@@ -7,8 +7,10 @@ public class AuthOptions
 {
     public string Issuer { get; set; } = null!;
     public string Audience { get; set; } = null!;
-    public string Secret { get; set; } = null!;
+    public string SecretAccess { get; set; } = null!;
+    public string SecretRefresh { get; set; } = null!;
     public int AccessTokenLifetimeMinutes { get; set; }
     public int RefreshTokenLifetimeDays { get; set; }
-    public SymmetricSecurityKey SymmetricSecurityKey => new(Encoding.UTF8.GetBytes(Secret));
+    public SymmetricSecurityKey SymmetricSecurityKeyAccess => new(Encoding.UTF8.GetBytes(SecretAccess));
+    public SymmetricSecurityKey SymmetricSecurityKeyRefresh => new(Encoding.UTF8.GetBytes(SecretRefresh));
 }

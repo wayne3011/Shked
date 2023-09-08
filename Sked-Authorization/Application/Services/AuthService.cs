@@ -36,7 +36,7 @@ public class AuthService : IAuthService
         
         var newUser = _mapper.Map<SignUpDTO, User>(signUpDto);
         newUser.Id = Guid.NewGuid().ToString();
-        newUser.PassHash = BCrypt.Net.BCrypt.HashPassword(signUpDto.Password, 16);
+        newUser.PassHash = BCrypt.Net.BCrypt.HashPassword(signUpDto.Password, 10);
         
         var authDto = _tokenManager.IssueToken(newUser.Id);
         newUser.Devices = new List<string> { authDto.RefreshToken };
@@ -78,7 +78,6 @@ public class AuthService : IAuthService
 
     public async Task<AuthResult<AuthDTO>> RefreshTokenAsync(string refreshToken)
     {
-
         var userId = _tokenManager.GetUserId(refreshToken); 
         if(userId == null) return new AuthResult<AuthDTO>(null, new List<ValidationError>
         {
@@ -110,7 +109,7 @@ public class AuthService : IAuthService
     {
         var user = await _users.GetById(id);
         if (user == null) return new AuthResult(AuthResultCode.InvalidUserId);
-        user.Devices = null;
+        user.Devices = new List<string>();
         await _users.Update(user);
         return new AuthResult(AuthResultCode.Ok);
     }

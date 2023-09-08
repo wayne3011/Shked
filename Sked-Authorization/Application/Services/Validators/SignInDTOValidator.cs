@@ -9,8 +9,8 @@ public class SignInDTOValidator : AbstractValidator<SignInDTO>
     public SignInDTOValidator()
     {
         RuleFor(x => x.Email).NotEmpty().WithMessage("Empty Email address.")
-            .WithErrorCode(Convert.ToString((int)AuthResultCode.InvalidEmail));
-        RuleFor(x => x.Password).NotEmpty().WithMessage("Empty PassHash")
-            .WithErrorCode(Convert.ToString((int)AuthResultCode.InvalidPass));
+            .WithErrorCode(Convert.ToString((int)AuthResultCode.EmptyEmail));
+        RuleFor(x => x.Password).NotEmpty().WithMessage("Empty Password")
+            .WithErrorCode(Convert.ToString((int)AuthResultCode.EmptyPassword));
     }
 }
