@@ -20,9 +20,6 @@ public class KafkaProducer : IKafkaProducer
             {
                 BootstrapServers = _options.Value.BootstrapServer,
                 ClientId = Dns.GetHostName(),
-                // SaslUsername = "4JXQMUM2YGX7NMJR",
-                // SaslPassword = "V97xChvbZqFXqY87WnbidrD/oy5X7j7DVyQUh3xsKNb+XtSeWLeM+YFY+1jwPkFh",
-                // SslEndpointIdentificationAlgorithm = SslEndpointIdentificationAlgorithm.Https
             }).Build();
         }
         catch (Exception e)

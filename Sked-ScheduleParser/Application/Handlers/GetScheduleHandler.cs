@@ -23,7 +23,7 @@ public class GetScheduleHandler : IRequestHandler<GetScheduleCommand>
         try
         {
             var schedule = await _scheduleParserService.GetGroupScheduleAsync(request.groupName);
-            await _kafkaProducer.SendScheduleAsync(_kafkaOptions.Value.ScheduleTopic, schedule);
+            await _kafkaProducer.SendScheduleAsync(_kafkaOptions.Value.SchedulesTopic, schedule);
         }
         catch (Exception e) //TODO: Handle error while send message to kafka
         {
