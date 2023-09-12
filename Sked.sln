@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sked-Authorization", "Sked-
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sked-Authorization.Tests", "Sked-Authorization.Tests\Sked-Authorization.Tests.csproj", "{8AEA22FD-E8F9-4F01-8374-8F6F75057AD9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sked-ScheduleParser", "Sked-ScheduleParser\Sked-ScheduleParser.csproj", "{2D28094B-674E-4908-ACC3-62400939B9E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{8AEA22FD-E8F9-4F01-8374-8F6F75057AD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AEA22FD-E8F9-4F01-8374-8F6F75057AD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AEA22FD-E8F9-4F01-8374-8F6F75057AD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D28094B-674E-4908-ACC3-62400939B9E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D28094B-674E-4908-ACC3-62400939B9E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D28094B-674E-4908-ACC3-62400939B9E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D28094B-674E-4908-ACC3-62400939B9E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
