@@ -29,9 +29,10 @@ public class KafkaProducer : IKafkaProducer
         }
     }
 
-    public async Task<DeliveryResult<Null, string>> SendScheduleAsync(string topic, Schedule message)
+    public async Task<DeliveryResult<Null, string>> SendScheduleAsync(string topic, ParsingResponse parsingResponse)
     {
-        var value = JsonSerializer.Serialize(message);
-        return await _producer.ProduceAsync(topic, new Message<Null, string>() { Value = value }); 
+        var value = JsonSerializer.Serialize(parsingResponse);
+        var result = await _producer.ProduceAsync(topic, new Message<Null, string>() { Value = value }); 
+        return result;
     }
 }

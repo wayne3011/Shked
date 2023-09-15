@@ -2,6 +2,7 @@ using System.Reflection;
 using SkedScheduleParser.Application.Handlers.Options;
 using SkedScheduleParser.Application.Infrastructure;
 using SkedScheduleParser.Application.Services;
+using SkedScheduleParser.Application.Services.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,7 @@ builder.Services.AddTransient<IKafkaProducer, KafkaProducer>();
 builder.Services.AddScoped<IScheduleParserService, ScheduleParserService>();
 //Add Options
 builder.Services.Configure<KafkaOptions>(builder.Configuration.GetSection("Kafka"));
+builder.Services.Configure<ScheduleParserOptions>(builder.Configuration.GetSection("ScheduleParserOptions"));
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 var app = builder.Build();
 

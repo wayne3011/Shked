@@ -1,5 +1,6 @@
 ﻿using MediatR;
+using SkedScheduleParser.Application.Models;
 
 namespace SkedScheduleParser.Application.Commands;
 
-public record GetScheduleCommand(string groupName) : IRequest;
+public record GetScheduleCommand(ParsingApplication parsingApplication) : IRequest;

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using SkedScheduleParser.Application.Commands;
 using SkedScheduleParser.Application.Handlers.Options;
 using SkedScheduleParser.Application.Infrastructure;
+using SkedScheduleParser.Application.Models;
 
 namespace SkedScheduleParser.Application.Handlers;
 
@@ -22,8 +23,12 @@ public class GetScheduleHandler : IRequestHandler<GetScheduleCommand>
     {
         try
         {
-            var schedule = await _scheduleParserService.GetGroupScheduleAsync(request.groupName);
-            await _kafkaProducer.SendScheduleAsync(_kafkaOptions.Value.SchedulesTopic, schedule);
+            var schedule = await _scheduleParserService.GetGroupScheduleAsync(request.parsingApplication.GroupName);
+            await _kafkaProducer.SendScheduleAsync(_kafkaOptions.Value.SchedulesTopic, new ParsingResponse()
+            {
+                ClientID = request.parsingApplication.ClientID,
+                NewSchedule = schedule
+            });
         }
         catch (Exception e) //TODO: Handle error while send message to kafka
         {

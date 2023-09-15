@@ -3,6 +3,6 @@
 public class KafkaConsumerOptions
 {
     public string BootstrapServer { get; set; }
-    public string SchedulesOptions { get; set; }
+    public string SchedulesTopic { get; set; }
     public string GroupID { get; set; }
 }
