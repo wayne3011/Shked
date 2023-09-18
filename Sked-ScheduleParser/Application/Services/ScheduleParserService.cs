@@ -1,9 +1,11 @@
-﻿using System.Security.Cryptography;
+﻿using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using AngleSharp;
 using AngleSharp.Dom;
+using AngleSharp.Io;
 using Microsoft.Extensions.Options;
 using SkedScheduleParser.Application.Infrastructure;
 using SkedScheduleParser.Application.Models;
@@ -102,7 +104,16 @@ public class ScheduleParserService : IScheduleParserService
     }
     private async Task<int> GetStudyWeekCount(string groupName)
     {
-        var document = await _context.OpenAsync(ScheduleUrl + $"?group={groupName}");
+        groupName = HttpUtility.UrlEncode(groupName);
+        var uri = new Uri(ScheduleUrl + $"/index.php?group={groupName}");
+        CookieContainer cookies = new CookieContainer();
+        cookies.Add(new Cookie("schedule-group-cache", "2.0") { Domain = uri.Host });
+        cookies.Add(new Cookie("schedule-st-group", groupName) { Domain = uri.Host });
+        HttpClientHandler httpClientHandler = new HttpClientHandler();
+        httpClientHandler.CookieContainer = cookies;
+        HttpClient httpClient = new HttpClient(httpClientHandler);
+        var response = await httpClient.GetAsync(uri);
+        var document = await _context.OpenAsync(async r => r.Content(await response.Content.ReadAsStreamAsync()));
         var studyWeeks = document.QuerySelectorAll("#collapseWeeks>div>div>ul>li");           
         int weekCount = studyWeeks.Length;
         return weekCount;
