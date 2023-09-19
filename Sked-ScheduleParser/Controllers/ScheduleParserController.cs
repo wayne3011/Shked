@@ -18,7 +18,7 @@ public class ScheduleParserController : Controller
     [Route("/GetSchedule")]
     public async Task<IActionResult> GetSchedule([FromQuery] ParsingApplication parsingApplication)
     {
-        await _mediator.Send(new GetScheduleCommand(parsingApplication));
+        _mediator.Send(new GetScheduleCommand(parsingApplication));
         return Ok();
     }
 

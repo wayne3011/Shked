@@ -3,7 +3,7 @@
 public class DailySchedule : IEquatable<DailySchedule>
 {
     public List<string> Dates { get; set; } = new List<string>();
-    public List<Class> Classes { get; set; } = new List<Class>();
+    public List<Lesson> Classes { get; set; } = new List<Lesson>();
     public string HashSum { get; set; } = "";
 
     public bool Equals(DailySchedule? other)

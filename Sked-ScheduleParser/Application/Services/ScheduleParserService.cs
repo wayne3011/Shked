@@ -9,7 +9,6 @@ using AngleSharp.Io;
 using Microsoft.Extensions.Options;
 using SkedScheduleParser.Application.Infrastructure;
 using SkedScheduleParser.Application.Models;
-using SkedScheduleParser.Application.Services.Extensions;
 using SkedScheduleParser.Application.Services.Options;
 
 namespace SkedScheduleParser.Application.Services;
@@ -32,8 +31,8 @@ public class ScheduleParserService : IScheduleParserService
         int studyWeekCount = await GetStudyWeekCount(groupName);
         for (int weekDay = 1; weekDay <= studyWeekCount; weekDay++)
         {
-            string url = ($"/index.php?group={HttpUtility.UrlEncode(groupName)}&week={HttpUtility.UrlEncode(weekDay.ToString())}");
-            var document = await _context.OpenAsync(ScheduleUrl + url);
+            var uri = new Uri(ScheduleUrl + $"/index.php?group={HttpUtility.UrlEncode(groupName)}&week={HttpUtility.UrlEncode(weekDay.ToString())}");
+            var document = await OpenDocumentAsync(uri, groupName);
             if (document == null) return null;
                 //throw new BrokenWebSiteConnectionException(ScheduleUrl,groupName);
             var dayCards = document.QuerySelectorAll("body>main>div>div>div.col-lg-8.me-auto.mb-7.mb-lg-0>article>ul>li>div>div");
@@ -57,7 +56,7 @@ public class ScheduleParserService : IScheduleParserService
                 foreach (var el in dayCardElements)//for each classes parse it
                 {
                     var classCard = el.Children;
-                    var _class = new Class();
+                    var _class = new Lesson();
                     
                     string classesNameRow = Regex.Replace( classCard[0].Text(), "[\t\n]", String.Empty);
                     
@@ -68,12 +67,12 @@ public class ScheduleParserService : IScheduleParserService
                     
                     if (classInfoRow.Length == 3)
                     {
-                        _class.Teacher = classInfoRow[1].Text();
+                        _class.Lecturer = classInfoRow[1].Text();
                         _class.Location = classInfoRow[2].Text();
                     }
                     else if(classInfoRow.Length == 4)
                     {
-                        _class.Teacher = classInfoRow[1].Text()+"/"+ classInfoRow[2].Text();
+                        _class.Lecturer = classInfoRow[1].Text()+"/"+ classInfoRow[2].Text();
                         _class.Location = classInfoRow[3].Text();
                     }
                     else
@@ -91,7 +90,7 @@ public class ScheduleParserService : IScheduleParserService
                 var alreadyExist = weekday.DaysSchedules.FirstOrDefault(x => x == daysSchedule);
                 if (alreadyExist != null)
                 {
-                    alreadyExist.Dates.Add(daysSchedule.Dates.First());
+                    alreadyExist.Dates.Add(date.ToShortDateString());
                 }
                 else
                 {
@@ -104,8 +103,16 @@ public class ScheduleParserService : IScheduleParserService
     }
     private async Task<int> GetStudyWeekCount(string groupName)
     {
+        Uri uri = new Uri(ScheduleUrl + $"/index.php?group={HttpUtility.UrlEncode(groupName)}");
+        var document = await OpenDocumentAsync(uri,groupName);
+        var studyWeeks = document.QuerySelectorAll("#collapseWeeks>div>div>ul>li");           
+        int weekCount = studyWeeks.Length;
+        return weekCount;
+    }
+
+    private async Task<IDocument> OpenDocumentAsync(Uri uri, string groupName)
+    {
         groupName = HttpUtility.UrlEncode(groupName);
-        var uri = new Uri(ScheduleUrl + $"/index.php?group={groupName}");
         CookieContainer cookies = new CookieContainer();
         cookies.Add(new Cookie("schedule-group-cache", "2.0") { Domain = uri.Host });
         cookies.Add(new Cookie("schedule-st-group", groupName) { Domain = uri.Host });
@@ -114,11 +121,8 @@ public class ScheduleParserService : IScheduleParserService
         HttpClient httpClient = new HttpClient(httpClientHandler);
         var response = await httpClient.GetAsync(uri);
         var document = await _context.OpenAsync(async r => r.Content(await response.Content.ReadAsStreamAsync()));
-        var studyWeeks = document.QuerySelectorAll("#collapseWeeks>div>div>ul>li");           
-        int weekCount = studyWeeks.Length;
-        return weekCount;
+        return document;
     }
-    
     private static readonly Dictionary<string, string> classesType = new Dictionary<string, string>()
     {
         //lecture practical laboratory exam
@@ -128,7 +132,7 @@ public class ScheduleParserService : IScheduleParserService
         {"ЭКЗ", "exam"},
     };
     
-    private static string _computeDaysScheduleHashSum(List<Class> classes)
+    private static string _computeDaysScheduleHashSum(List<Lesson> classes)
     {
         using var mD5 = MD5.Create();
         var classesHashSB = new StringBuilder();
@@ -137,7 +141,7 @@ public class ScheduleParserService : IScheduleParserService
             classesHashSB.Append(el.Ordinal);
             classesHashSB.Append(el.Name);
             classesHashSB.Append(el.Type);
-            classesHashSB.Append(el.Teacher);
+            classesHashSB.Append(el.Lecturer);
             classesHashSB.Append(el.Location);
         }
         return Convert.ToHexString(mD5.ComputeHash(Encoding.UTF8.GetBytes(classesHashSB.ToString())));
