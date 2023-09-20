@@ -5,5 +5,5 @@ namespace SkedScheduleParser.Application.Infrastructure;
 public interface IScheduleParserService
 {
     Task<Schedule> GetGroupScheduleAsync(string groupName);
-    Task<string?> FormatGroupNameAsync(string groupName);
+    Task<GroupNameValidationResult> FormatGroupNameAsync(string groupName);
 }

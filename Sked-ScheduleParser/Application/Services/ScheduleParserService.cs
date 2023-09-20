@@ -21,9 +21,47 @@ public class ScheduleParserService : IScheduleParserService
     {
         ScheduleUrl = options.Value.MAIScheduleUrl;
     } 
-    public Task<string?> FormatGroupNameAsync(string groupName)
+    public async Task<GroupNameValidationResult> FormatGroupNameAsync(string groupName)
     {
-        throw new NotImplementedException();
+            string formattedGroupName = String.Empty;
+            int facultyNumber;
+            int courseNumber;
+            string courseNumberString;
+            string facultyNumberString;
+            //Проверяем на совпадение имя группы общему шаблону
+            groupName = groupName.ToLower();
+            groupName = Regex.Replace(groupName, "-", "");
+            if (!Regex.IsMatch(groupName, "\\w([0-9]{1,2}|и)\\w[0-9]{3}\\w{1,3}[0-9]{2}")) return null;
+            //Получаем из имени группы номер факультета и номер курса
+            facultyNumberString = Regex.Match(groupName, "[0-9]{1,2}|и").Value;
+            if (facultyNumberString == "и")
+            {
+                facultyNumber = 10;
+                formattedGroupName += groupName.Substring(0, 3).ToUpper();
+                courseNumberString = Regex.Matches(groupName, "[0-9]").ElementAt(0).Value;
+            }
+            else
+            {
+                if (!int.TryParse(facultyNumberString, out facultyNumber)) return null;
+                formattedGroupName += Regex.Match(groupName, "\\w[0-9]{1,2}\\w").Value.ToUpper() + "-";  
+                courseNumberString = Regex.Matches(groupName, "[0-9]").ElementAt(1).Value;
+            }
+            courseNumber = int.Parse(courseNumberString);
+
+            if (facultyNumber < 1 || facultyNumber > 12) return null;
+            if (courseNumber < 1 || courseNumber > 6) return null;
+            formattedGroupName += Regex.Match(groupName, "[0-9]{3}");
+            
+            string learningProfile = string.Join("",Regex.Matches(groupName, "[а-я]|[a-z]"));
+            learningProfile = learningProfile.Substring(2);
+            learningProfile = Char.ToUpper(learningProfile[0]) + learningProfile.Substring(1);
+            formattedGroupName += learningProfile + "-" + groupName.Substring(groupName.Length - 2);    
+            
+            var document = await _context.OpenAsync(ScheduleUrl + $"/groups.php?department=Институт+№{facultyNumber}&course={courseNumber}");
+            var groupList = document.QuerySelector("body>main>div>div>div.col-lg-8.me-auto.mb-7.mb-lg-0>article>div.tab-content")?.Text().Trim('\n', '\t');
+            if (groupList == null) throw new Exception("Invalid scheduleURL");
+            if (!Regex.IsMatch(groupList, formattedGroupName)) return new GroupNameValidationResult(formattedGroupName, false);
+            return new GroupNameValidationResult(formattedGroupName, true);
     }
     public async Task<Schedule?> GetGroupScheduleAsync(string groupName) 
     {

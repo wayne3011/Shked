@@ -16,10 +16,17 @@ public class ScheduleParserController : Controller
     }
     [HttpGet]
     [Route("/GetSchedule")]
-    public async Task<IActionResult> GetSchedule([FromQuery] ParsingApplication parsingApplication)
+    public IActionResult GetSchedule([FromQuery] ParsingApplication parsingApplication)
     {
-        _mediator.Send(new GetScheduleCommand(parsingApplication));
+        _mediator.Send(new GetScheduleCommand(parsingApplication)).RunSynchronously();
         return Ok();
+    }
+
+    [HttpGet]
+    [Route("/FormatGroupName")]
+    public async Task FormatGroupName([FromQuery] string groupName)
+    {
+        return await _mediator.Send<GroupNameValidationResult>(new FormatGroupNameCommand(groupName));
     }
 
 }

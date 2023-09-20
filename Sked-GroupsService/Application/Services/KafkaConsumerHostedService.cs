@@ -46,7 +46,6 @@ public class KafkaConsumerHostedService : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
              var newMessage = _consumer.Consume(stoppingToken);
-            //var parsingResponse = JsonSerializer.Deserialize<ParsingResponse>(newMessage.Message.Value);
             var parsingResponse = JsonConvert.DeserializeObject<ParsingResponse>(newMessage.Message.Value); 
             if (parsingResponse == null)
             {
