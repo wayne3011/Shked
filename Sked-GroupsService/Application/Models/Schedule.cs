@@ -1,10 +1,14 @@
-﻿namespace SkedGroupsService.Application.Models;
+﻿using MongoDB.Bson.Serialization.Attributes;
+
+namespace SkedGroupsService.Application.Models;
 
 public class Schedule
 {
+    [BsonId]
+    public string Id { get; set; }
     public string GroupName { get; set; }
 
-    public List<Weekday> Week { get; } = new List<Weekday>();
+    public List<Weekday> Week { get; set; } = new List<Weekday>();
     // public Schedule()
     // {
     //     for (int i = 0; i < 7; i++)

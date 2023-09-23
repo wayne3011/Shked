@@ -17,23 +17,27 @@ public class GetScheduleHandler : IRequestHandler<GetScheduleCommand>
     {
         _scheduleParserService = scheduleParserService;
         _kafkaOptions = kafkaOptions;
-        _kafkaProducer = kafkaProducer;
+        try
+        {
+            _kafkaProducer = kafkaProducer;
+
+        }
+        catch (Exception )
+        {
+            Console.WriteLine();
+            throw;
+        }
+        
     }
     public async Task Handle(GetScheduleCommand request, CancellationToken cancellationToken)
     {
-        try
+
+        var schedule = await _scheduleParserService.GetGroupScheduleAsync(request.parsingApplication.GroupName);
+        await _kafkaProducer.SendScheduleAsync(_kafkaOptions.Value.SchedulesTopic, new ParsingResponse()
         {
-            var schedule = await _scheduleParserService.GetGroupScheduleAsync(request.parsingApplication.GroupName);
-            await _kafkaProducer.SendScheduleAsync(_kafkaOptions.Value.SchedulesTopic, new ParsingResponse()
-            {
-                ClientID = request.parsingApplication.ClientID,
-                NewSchedule = schedule
-            });
-        }
-        catch (Exception e) //TODO: Handle error while send message to kafka
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+            ClientID = request.parsingApplication.ClientID,
+            NewSchedule = schedule
+        });
+
     }
 }

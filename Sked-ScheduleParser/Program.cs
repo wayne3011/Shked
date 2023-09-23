@@ -1,11 +1,17 @@
 using System.Reflection;
+using Serilog;
 using SkedScheduleParser.Application.Handlers.Options;
 using SkedScheduleParser.Application.Infrastructure;
 using SkedScheduleParser.Application.Services;
 using SkedScheduleParser.Application.Services.Options;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
+var builder = WebApplication.CreateBuilder(args);
+builder.Logging.AddConsole();
+builder.Host.UseSerilog();
 // Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

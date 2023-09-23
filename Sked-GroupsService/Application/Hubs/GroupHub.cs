@@ -25,7 +25,16 @@ public class GroupHub :  Hub
     }
     public async Task GroupSchedule(string groupName)
     {
-        var schedule = await _scheduleRepository.GetAsync(groupName);
+        Schedule schedule;
+        try
+        {
+            schedule = await _scheduleRepository.GetAsync(groupName);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Database connection failed.\nError: {Message}", e.Message);
+            schedule = null;
+        }
         if (schedule == null)
         {
             await SendParseApplication(groupName);

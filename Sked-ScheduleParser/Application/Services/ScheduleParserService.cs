@@ -17,8 +17,10 @@ public class ScheduleParserService : IScheduleParserService
 {
     private string ScheduleUrl { get; set; }
     private IBrowsingContext _context { get; set; } = BrowsingContext.New(new Configuration().WithDefaultLoader());
-    public ScheduleParserService(IOptions<ScheduleParserOptions> options)
+    private readonly ILogger<ScheduleParserService> _logger;
+    public ScheduleParserService(IOptions<ScheduleParserOptions> options, ILogger<ScheduleParserService> logger)
     {
+        _logger = logger;
         ScheduleUrl = options.Value.MAIScheduleUrl;
     } 
     public async Task<GroupNameValidationResult> FormatGroupNameAsync(string groupName)
@@ -71,15 +73,21 @@ public class ScheduleParserService : IScheduleParserService
         {
             var uri = new Uri(ScheduleUrl + $"/index.php?group={HttpUtility.UrlEncode(groupName)}&week={HttpUtility.UrlEncode(weekDay.ToString())}");
             var document = await OpenDocumentAsync(uri, groupName);
-            if (document == null) return null;
-                //throw new BrokenWebSiteConnectionException(ScheduleUrl,groupName);
+            _logger.LogInformation("Next page...");
+            if (document == null)
+            {
+                _logger.LogError("Broken schedule website connection with {groupName} request", groupName);
+                return null;
+            }
             var dayCards = document.QuerySelectorAll("body>main>div>div>div.col-lg-8.me-auto.mb-7.mb-lg-0>article>ul>li>div>div");
-            //TODO: WARNING DESIGN CHANGED!!!
             if (dayCards.Length == 0)
             {
                 var isHaveSchedule = document.QuerySelector("body>main>div>div>div.col-lg-8.me-auto.mb-7.mb-lg-0>article>div.w-md-75.w-xl-50.text-center.mx-md-auto.mb-5.mb-md-9>img") is not null;
-                if (!isHaveSchedule) return null;
-//                    throw new AbsenceScheduleObjectsException(ScheduleUrl,groupName);
+                if (!isHaveSchedule)
+                {
+                    _logger.LogError("Schedule objects cannot be found during the {groupName} group request", groupName);
+                    return null;
+                }
             }
             
             foreach (var dayCard in dayCards)//parse study day
@@ -136,7 +144,8 @@ public class ScheduleParserService : IScheduleParserService
                 }
             }
         }
-        
+
+        schedule.GroupName = groupName;
         return schedule;
     }
     private async Task<int> GetStudyWeekCount(string groupName)

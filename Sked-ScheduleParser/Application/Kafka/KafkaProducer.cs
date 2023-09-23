@@ -11,22 +11,21 @@ public class KafkaProducer : IKafkaProducer
 {
     private readonly IOptions<KafkaOptions> _options;
     private readonly IProducer<Null, string> _producer;
-    public KafkaProducer(IOptions<KafkaOptions> options)
+    private readonly ILogger<KafkaProducer> _logger;
+    public KafkaProducer(IOptions<KafkaOptions> options, ILogger<KafkaProducer> logger)
     {
         _options = options;
-        try
+        _logger = logger;
+
+        _producer = new ProducerBuilder<Null, string>(new ProducerConfig()
         {
-            _producer = new ProducerBuilder<Null, string>(new ProducerConfig()
-            {
-                BootstrapServers = _options.Value.BootstrapServer,
-                ClientId = Dns.GetHostName(),
-            }).Build();
-        }
-        catch (Exception e)
+            BootstrapServers = _options.Value.BootstrapServer,
+            ClientId = Dns.GetHostName(),
+        }).SetErrorHandler((producer, error) =>
         {
-            Console.WriteLine(e);
-            throw;
-        }
+            _logger.LogError($"Kafka: {error.Reason}");
+        }).Build();
+
     }
 
     public async Task<DeliveryResult<Null, string>> SendScheduleAsync(string topic, ParsingResponse parsingResponse)

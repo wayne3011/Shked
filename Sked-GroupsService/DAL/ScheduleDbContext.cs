@@ -12,7 +12,13 @@ public class ScheduleDbContext : IScheduleDbContext
 
     public ScheduleDbContext(IOptions<MongoOptions> options)
     {
-        var client = new MongoClient(options.Value.ConnectionString);
+        var client = new MongoClient(new MongoClientSettings()
+        {
+            ConnectTimeout = TimeSpan.FromSeconds(10),
+            SocketTimeout = TimeSpan.FromSeconds(10),
+            ServerSelectionTimeout = TimeSpan.FromSeconds(10),
+            Server = new MongoServerAddress("localhost", 27017)
+        });
         var database = client.GetDatabase(options.Value.DatabaseName);
         Schedules = database.GetCollection<Schedule>(options.Value.CollectionName);
     }
