@@ -1,4 +1,4 @@
-﻿namespace SkedGroupsService.Application.Models;
+﻿namespace SkedGroupsService.DAL.Models;
 
 public class Weekday
 {

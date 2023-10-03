@@ -6,7 +6,8 @@ using SkedGroupsService.Application.Infrastructure;
 using SkedGroupsService.Application.Kafka;
 using SkedGroupsService.Application.Models;
 using SkedGroupsService.DAL.Infrastructure;
-using SkedScheduleParser.Application.Models;
+using SkedGroupsService.DAL.Models;
+
 
 namespace SkedGroupsService.Application.Hubs;
 
@@ -40,7 +41,7 @@ public class GroupHub :  Hub
             await SendParseApplication(groupName);
             return;
         }
-
+        
         await Clients.Caller.SendAsync("CheckParsingProgress", new ParsingProgress { Status = ParseStatus.Success, Schedule = schedule});
     }
 

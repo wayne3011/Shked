@@ -1,4 +1,6 @@
-﻿namespace SkedGroupsService.Application.Models;
+﻿using SkedGroupsService.DAL.Models;
+
+namespace SkedGroupsService.Application.Models;
 
 public class ParsingProgress
 {

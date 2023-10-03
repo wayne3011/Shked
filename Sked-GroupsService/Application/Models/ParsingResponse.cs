@@ -1,4 +1,5 @@
 ﻿using SkedGroupsService.Application.Models;
+using SkedGroupsService.DAL.Models;
 
 namespace SkedScheduleParser.Application.Models;
 

@@ -1,6 +1,7 @@
 ﻿using MongoDB.Driver;
 using SkedGroupsService.Application.Models;
 using SkedGroupsService.DAL.Infrastructure;
+using SkedGroupsService.DAL.Models;
 
 namespace SkedGroupsService.DAL.Repositories;
 

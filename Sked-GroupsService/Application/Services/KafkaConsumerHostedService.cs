@@ -1,10 +1,8 @@
-﻿using System.Reactive.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using SkedGroupsService.Application.Extensions.JsonConverters;
 using SkedGroupsService.Application.Hubs;
 using SkedGroupsService.Application.Models;
 using SkedGroupsService.DAL.Infrastructure;
@@ -52,7 +50,11 @@ public class KafkaConsumerHostedService : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             var newMessage = _consumer.Consume(stoppingToken);
-            var parsingResponse = JsonConvert.DeserializeObject<ParsingResponse>(newMessage.Message.Value); 
+            
+            var serializeOptions = new JsonSerializerOptions();
+            serializeOptions.Converters.Add(new DateOnlyJsonConverter());
+            var parsingResponse = JsonSerializer.Deserialize<ParsingResponse>(newMessage.Message.Value,serializeOptions); 
+            
             if (parsingResponse == null)
             {
                 await _hubContext.Clients.Client(parsingResponse.ClientID)
@@ -75,7 +77,8 @@ public class KafkaConsumerHostedService : BackgroundService
                 .SendAsync("CheckParsingProgress", 
                     new ParsingProgress()
                     {
-                        Status = ParseStatus.Ended, Schedule = parsingResponse.NewSchedule
+                        Status = ParseStatus.Ended, 
+                        Schedule = parsingResponse.NewSchedule,
                     }, cancellationToken: stoppingToken);
         }
     }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 using Serilog;
+using SkedGroupsService.Application.Extensions.JsonConverters;
 using SkedGroupsService.Application.HttpClients;
 using SkedGroupsService.Application.HttpClients.Options;
 using SkedGroupsService.Application.Hubs;
@@ -28,8 +29,9 @@ builder.Services.AddHostedService(p => p.GetRequiredService<KafkaConsumerHostedS
 builder.Services.AddTransient<IScheduleParserApi, ScheduleParserApi>();
 builder.Services.AddSignalR(p => p = new HubOptions()
 {
-    HandshakeTimeout = TimeSpan.FromSeconds(1000)
-});
+    HandshakeTimeout = TimeSpan.FromSeconds(1000),
+    
+}).AddJsonProtocol(o => o.PayloadSerializerOptions.Converters.Add(new DateOnlyJsonConverter()));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -44,5 +46,5 @@ app.UseWebSockets();
 app.UseRouting();
 app.UseEndpoints(endpoints => endpoints.MapHub<GroupHub>("/GroupsSchedule"));
 app.MapControllers();
-app.Map("/", () => "Hello!!!");
+app.Map("/", () => "Group Service Alive!");
 app.Run();

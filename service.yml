@@ -3,10 +3,9 @@ kind: Service
 metadata:
   name: port-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: shked-pod
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 5001

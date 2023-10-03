@@ -1,10 +1,12 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using System.Text.Json.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
 
-namespace SkedGroupsService.Application.Models;
+namespace SkedGroupsService.DAL.Models;
 
 public class Schedule
 {
     [BsonId]
+    [JsonIgnore]
     public string Id { get; set; }
     public string GroupName { get; set; }
 

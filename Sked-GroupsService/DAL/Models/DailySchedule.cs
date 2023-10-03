@@ -1,8 +1,11 @@
-﻿namespace SkedGroupsService.Application.Models;
+﻿using System.Text.Json.Serialization;
+using SkedGroupsService.Application.Extensions.JsonConverters;
+
+namespace SkedGroupsService.DAL.Models;
 
 public class DailySchedule : IEquatable<DailySchedule>
 {
-    public List<string> Dates { get; set; } = new List<string>();
+    public List<DateOnly> Dates { get; set; } = new List<DateOnly>();
     public List<Lesson> Classes { get; set; } = new List<Lesson>();
     public string HashSum { get; set; } = "";
 

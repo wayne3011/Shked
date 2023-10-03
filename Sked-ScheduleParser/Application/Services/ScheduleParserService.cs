@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Globalization;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -94,12 +95,16 @@ public class ScheduleParserService : IScheduleParserService
             {
                
                 DailySchedule daysSchedule = new DailySchedule();
+                var dateString = dayCard.FirstElementChild
+                    .Text()
+                    .Trim(new char[] { '\n', '\t' })
+                    .Remove(0, 4);
+                DateTime date = DateTime.Parse(dateString, new CultureInfo("ru-Ru"));
                 
-                DateTime date = Convert.ToDateTime(dayCard.FirstElementChild.Text().Trim(new char[] { '\n', '\t' }).Remove(0, 4));
-                daysSchedule.Dates.Add(date.ToShortDateString());        
+                daysSchedule.Dates.Add(DateOnly.FromDateTime(date));        
                 
                 var dayCardElements = dayCard.Children.Where(el => el.TagName == "DIV");//get schoolday schedule
-                foreach (var el in dayCardElements)//for each classes parse it
+                foreach (var el in dayCardElements) //for each classes parse it
                 {
                     var classCard = el.Children;
                     var _class = new Lesson();
@@ -136,7 +141,7 @@ public class ScheduleParserService : IScheduleParserService
                 var alreadyExist = weekday.DaysSchedules.FirstOrDefault(x => x == daysSchedule);
                 if (alreadyExist != null)
                 {
-                    alreadyExist.Dates.Add(date.ToShortDateString());
+                    alreadyExist.Dates.Add(DateOnly.FromDateTime(date));
                 }
                 else
                 {
