@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Sockets;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using SkedGroupsService.Application.HttpClients.Options;
@@ -10,7 +11,6 @@ using SkedGroupsService.DAL.Models;
 
 
 namespace SkedGroupsService.Application.Hubs;
-
 public class GroupHub :  Hub
 {
     private readonly IScheduleParserApi _scheduleParserApi;
@@ -52,7 +52,15 @@ public class GroupHub :  Hub
             ClientID = Context.ConnectionId,
             GroupName = groupName
         };
-        var result = await _scheduleParserApi.GetGroupSchedule(parsingApplication);
+        bool result;
+        try
+        {
+            result = await _scheduleParserApi.GetGroupSchedule(parsingApplication);
+        }
+        catch (SocketException e)
+        {
+            result = false;
+        }
         if (result)
         {
             await Clients.Caller.SendAsync("CheckParsingProgress",new ParsingProgress() { Status = ParseStatus.Starting });

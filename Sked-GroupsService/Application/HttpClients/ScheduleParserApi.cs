@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Microsoft.Extensions.Options;
 using SkedGroupsService.Application.HttpClients.Options;
 using SkedGroupsService.Application.Infrastructure;
@@ -23,5 +24,13 @@ public class ScheduleParserApi : IScheduleParserApi
                                  $"?ClientID={parsingApplication.ClientID}&GroupName={parsingApplication.GroupName}");
         var response = await _httpClient.GetAsync(requestUri);
         return response.StatusCode == HttpStatusCode.OK;
+    }
+
+    public async Task<GroupNameValidationResult?> FormatGroupName(string groupName)
+    {
+        var requestUri = new Uri(_options.Value.Url + _options.Value.FormatGroupName + $"groupName={groupName}");
+        var response = await _httpClient.GetAsync(requestUri);
+        var resultString= await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<GroupNameValidationResult>(resultString);
     }
 }
