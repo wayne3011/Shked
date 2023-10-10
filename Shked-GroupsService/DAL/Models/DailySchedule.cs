@@ -1,4 +1,7 @@
-﻿namespace ShkedGroupsService.DAL.Models;
+﻿using System.Text.Json.Serialization;
+using ShkedGroupsService.Application.DTO.ScheduleDTO.JsonConverters;
+
+namespace ShkedGroupsService.DAL.Models;
 
 public class DailySchedule : IEquatable<DailySchedule>
 {

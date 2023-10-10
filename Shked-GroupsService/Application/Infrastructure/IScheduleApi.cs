@@ -4,5 +4,5 @@ namespace ShkedGroupsService.Application.Infrastructure;
 
 public interface IScheduleApi
 {
-    Task<Schedule> GetSchedule(string groupName);
+    Task<Schedule> GetScheduleAsync(string groupName);
 }

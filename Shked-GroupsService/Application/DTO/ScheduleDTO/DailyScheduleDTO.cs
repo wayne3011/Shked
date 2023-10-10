@@ -1,4 +1,7 @@
-﻿namespace ShkedGroupsService.Application.DTO.ScheduleDTO;
+﻿using System.Text.Json.Serialization;
+using ShkedGroupsService.Application.DTO.ScheduleDTO.JsonConverters;
+
+namespace ShkedGroupsService.Application.DTO.ScheduleDTO;
 
 public class DailyScheduleDTO : IEquatable<DailyScheduleDTO>
 {
