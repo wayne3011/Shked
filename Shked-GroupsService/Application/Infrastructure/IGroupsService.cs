@@ -5,6 +5,6 @@ namespace ShkedGroupsService.Application.Infrastructure;
 
 public interface IGroupsService
 {
-    Task<ScheduleDTO> GetGroupSchedule(string groupName);
+    Task<ScheduleDTO?> GetGroupSchedule(string groupName);
     Task<GroupNameValidationResult> FormatGroupName(string groupName);
 }

@@ -12,26 +12,33 @@ public class GroupsService : IGroupsService
     private readonly IScheduleApi _scheduleApi;
     private readonly IScheduleRepository _scheduleRepository;
     private readonly IMapper _mapper;
+    private readonly ILogger<GroupsService> _logger;
 
-    public GroupsService(IScheduleApi scheduleApi, IScheduleRepository scheduleRepository, IMapper mapper)
+    public GroupsService(IScheduleApi scheduleApi, IScheduleRepository scheduleRepository, IMapper mapper, ILogger<GroupsService> logger)
     {
         _scheduleApi = scheduleApi;
         _scheduleRepository = scheduleRepository;
         _mapper = mapper;
+        _logger = logger;
     }
     
 
-    public async Task<ScheduleDTO> GetGroupSchedule(string groupName)
+    public async Task<ScheduleDTO?> GetGroupSchedule(string groupName)
     {
-        var schedule = await _scheduleRepository.GetAsync(groupName);
+        Schedule? schedule = null;
+        schedule = await _scheduleRepository.GetAsync(groupName);
         if (schedule == null)
         {
             schedule = await _scheduleApi.GetScheduleAsync(groupName);
-            schedule.Id = Guid.NewGuid().ToString();
-            await _scheduleRepository.CreateAsync(schedule);
+            if (schedule != null)
+            {
+                schedule.Id = Guid.NewGuid().ToString();
+                await _scheduleRepository.CreateAsync(schedule);
+            }
+
         }
         
-        return _mapper.Map<Schedule,ScheduleDTO>(schedule);
+        return schedule != null ? _mapper.Map<Schedule,ScheduleDTO>(schedule) : null;
     }
 
     public Task<GroupNameValidationResult> FormatGroupName(string groupName)

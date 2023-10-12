@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -17,7 +18,7 @@ public class ScheduleAPI : IScheduleApi
     {
         _scheduleApiOptions = scheduleApiOptions;
     }
-    public async Task<Schedule> GetScheduleAsync(string groupName)
+    public async Task<Schedule?> GetScheduleAsync(string groupName)
     {
         var scheduleUri = new Uri(_scheduleApiOptions.Value.ScheduleApiUrl + 
                                   _scheduleApiOptions.Value.SchedulesCollection + 
@@ -28,6 +29,10 @@ public class ScheduleAPI : IScheduleApi
         if (httpResponse.IsSuccessStatusCode)
         {
             content = await httpResponse.Content.ReadAsStringAsync();
+        }
+        else if (httpResponse.StatusCode == HttpStatusCode.NotFound)
+        {
+            return null;
         }
         return ScheduleResponseDeserialize(content);
     }
@@ -53,7 +58,7 @@ public class ScheduleAPI : IScheduleApi
                 {
                     string subject = lesson.Key;
                     int ordinal = GetOrdinalFromStartTime(startTime);
-                    string type = lesson.Value.type.First().Key;
+                    string type = ClassType[lesson.Value.type.First().Key];
                     string location = string.Join("/",lesson.Value.room.Select(x => x.Value));
                     string lector = string.Join("/",lesson.Value.lector.Select(x => x.Value));
                     hashSum += subject + ordinal + type + lector + location;
@@ -112,5 +117,13 @@ public class ScheduleAPI : IScheduleApi
                 throw new Exception("Invalid class time");
         }
     }
+
+    private readonly Dictionary<string, string> ClassType = new Dictionary<string, string>()
+    {
+        { "ЛК", "lecture" },
+        { "ПЗ", "practical" },
+        { "ЛР", "laboratory" },
+        { "ЭКЗ", "exam" },
+    };
 
 }

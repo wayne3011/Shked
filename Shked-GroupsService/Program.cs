@@ -1,3 +1,4 @@
+using Serilog;
 using ShkedGroupsService.Application.DTO.ScheduleDTO.JsonConverters;
 using ShkedGroupsService.Application.Infrastructure;
 using ShkedGroupsService.Application.Services;
@@ -7,7 +8,14 @@ using ShkedGroupsService.DAL.Infrastructure;
 using ShkedGroupsService.DAL.Options;
 using ShkedGroupsService.DAL.Repositories;
 
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.AddConsole();
+builder.Host.UseSerilog();
 
 builder.Services.Configure<MongoOptions>(builder.Configuration.GetSection("MongoOptions"));
 builder.Services.Configure<ScheduleAPIOptions>(builder.Configuration.GetSection("ScheduleApiOptions"));

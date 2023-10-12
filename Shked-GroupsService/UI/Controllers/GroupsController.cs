@@ -14,9 +14,9 @@ public class GroupsController : ControllerBase
     }
     [HttpGet]
     [Route("{groupName}")]
-    public async Task<ScheduleDTO> GetAsync([FromRoute]string groupName)
+    public async Task<ActionResult<ScheduleDTO>> GetAsync([FromRoute]string groupName)
     {
-        var temp = await _groupsService.GetGroupSchedule(groupName);
-        return temp;
+        var schedule = await _groupsService.GetGroupSchedule(groupName);
+        return schedule != null ? schedule : NotFound();
     }
 }

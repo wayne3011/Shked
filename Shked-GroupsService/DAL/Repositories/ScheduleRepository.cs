@@ -14,7 +14,14 @@ public class ScheduleRepository : IScheduleRepository
     }
     public async Task<Schedule?> GetAsync(string groupName)
     {
-        var cursor = await _context.Schedules.FindAsync(x => x.GroupName == groupName);
+        try
+        {
+            var cursor = await _context.Schedules.FindAsync(x => x.GroupName == groupName);
+        }
+        catch (TimeoutException e)
+        {
+
+        }
         return (await cursor.ToListAsync()).FirstOrDefault();
     }
 
