@@ -3,15 +3,24 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:22105",
-      "sslPort": 44337
+      "applicationUrl": "http://localhost:1085",
+      "sslPort": 44338
     }
   },
   "profiles": {
-    "Shked_GroupsService": {
+    "http": {
       "commandName": "Project",
-      "dotnetRunMessages": true,  
-      "applicationUrl": "https://localhost:7056;http://localhost:5160",
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:5185",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "https": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:7131;http://localhost:5185",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

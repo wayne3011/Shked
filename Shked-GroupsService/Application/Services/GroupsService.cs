@@ -35,14 +35,8 @@ public class GroupsService : IGroupsService
                 schedule.Id = Guid.NewGuid().ToString();
                 await _scheduleRepository.CreateAsync(schedule);
             }
-
         }
         
         return schedule != null ? _mapper.Map<Schedule,ScheduleDTO>(schedule) : null;
-    }
-
-    public Task<GroupNameValidationResult> FormatGroupName(string groupName)
-    {
-        throw new NotImplementedException();
     }
 }
