@@ -15,12 +15,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddTransient<ITaskDbContext, MongoDbContext>();
 builder.Services.AddTransient<ITaskRepository, TaskRepository>();
+
 builder.Services.AddTransient<ITaskAttachmentsStorageApi, TaskAttachmentsStorageApi>();
+builder.Services.AddTransient<IUsersApi, UsersApi>();
 
 builder.Services.AddTransient<ITasksService, TasksService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.Configure<UsersApiOptions>(builder.Configuration.GetSection("UsersApiOptions"));
 var jwtOptions = builder.Configuration.GetSection("AuthOptions");
 builder.Services.Configure<TaskAttachmentsStorageApiOptions>(
     builder.Configuration.GetSection("TaskAttachmentsStorageApiSettings"));

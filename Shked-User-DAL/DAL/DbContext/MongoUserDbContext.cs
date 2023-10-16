@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using SkedAuthorization.DAL.DbContext.Options;
-using SkedAuthorization.DAL.Entities;
-using SkedAuthorization.DAL.Infrastructure;
+using Shked.UserDAL.DbContext.Options;
+using Shked.UserDAL.Entities;
+using Shked.UserDAL.Infrastructure;
 
-namespace SkedAuthorization.DAL.DbContext;
+namespace Shked.UserDAL.DbContext;
 
 public class MongoUserDbContext : IUserDbContext
 {

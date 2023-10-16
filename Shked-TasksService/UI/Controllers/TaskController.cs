@@ -19,8 +19,18 @@ public class TaskController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([ModelBinder(BinderType = typeof(JsonModelBinder))] TaskDTO taskDto, [FromForm] IFormFileCollection formFileCollection)
     {
-        taskDto.UserID = User.Identity.Name ?? "UNKNOWN";
+        var userId = User.Identity.Name;
+        if (userId == null) return Unauthorized();
+        taskDto.UserID = userId; 
         var paths = await _tasksService.CreateTaskAsync(taskDto, formFileCollection);
         return paths != null ? Ok(paths) : StatusCode(StatusCodes.Status500InternalServerError);
+    }
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> GetTasks()
+    {
+        var userId = User.Identity?.Name;
+        if (userId == null) return Unauthorized();
+        return Ok(await _tasksService.GetTasksAsync(userId));
     }
 }

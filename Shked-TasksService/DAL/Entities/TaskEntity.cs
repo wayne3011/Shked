@@ -12,5 +12,6 @@ public class TaskEntity
     public bool IsPublic { get; set; }
     public int LessonOrdinal { get; set; }
     public string Text { get; set; }
+    public string GroupName { get; set; }
     public IEnumerable<string> Attachments { get; set; }
 }

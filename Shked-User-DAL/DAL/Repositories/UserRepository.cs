@@ -1,9 +1,10 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
-using SkedAuthorization.DAL.Entities;
-using SkedAuthorization.DAL.Infrastructure;
+using Shked.UserDAL.Entities;
+using Shked.UserDAL.Infrastructure;
 
-namespace SkedAuthorization.DAL.Repositories;
+
+namespace Shked.UserDAL.Repositories;
 
 public class UserRepository : IUserRepository
 {

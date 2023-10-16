@@ -1,19 +1,17 @@
 using System.Text;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using SkedAuthorization.Application.Infrastructure;
 using SkedAuthorization.Application.Services;
 using SkedAuthorization.Application.Services.Options;
-using SkedAuthorization.DAL.DbContext;
-using SkedAuthorization.DAL.Infrastructure;
-using SkedAuthorization.DAL.Repositories;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Shked.UserDAL.DbContext;
+using Shked.UserDAL.DbContext.Options;
+using Shked.UserDAL.Infrastructure;
+using Shked.UserDAL.Repositories;
 using SkedAuthorization.Application.Data.DTO;
 using SkedAuthorization.Application.Services.Utils;
 using SkedAuthorization.Application.Services.Validators;
-using SkedAuthorization.DAL.DbContext.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 

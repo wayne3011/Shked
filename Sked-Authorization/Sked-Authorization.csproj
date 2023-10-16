@@ -30,6 +30,10 @@
 
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Shked-User-DAL\Shked-User-DAL.csproj" />
+    </ItemGroup>
+
 
 
 

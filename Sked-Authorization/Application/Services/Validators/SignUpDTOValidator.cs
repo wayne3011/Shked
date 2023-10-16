@@ -1,8 +1,6 @@
+using Shked.UserDAL.Infrastructure;
 using SkedAuthorization.Application.Data.DTO;
 using SkedAuthorization.Application.Data.Responses;
-using SkedAuthorization.Application.Extensions;
-using SkedAuthorization.DAL.Entities;
-using SkedAuthorization.DAL.Infrastructure;
 
 namespace SkedAuthorization.Application.Services.Validators;
 using FluentValidation;

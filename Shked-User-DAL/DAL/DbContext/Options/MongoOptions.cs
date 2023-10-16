@@ -1,4 +1,4 @@
-namespace SkedAuthorization.DAL.DbContext.Options;
+namespace Shked.UserDAL.DbContext.Options;
 
 public class MongoOptions
 {

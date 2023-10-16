@@ -1,6 +1,6 @@
-﻿using SkedAuthorization.DAL.Entities;
+﻿using Shked.UserDAL.Entities;
 
-namespace SkedAuthorization.DAL.Infrastructure;
+namespace Shked.UserDAL.Infrastructure;
 
 public interface IUserRepository
 {

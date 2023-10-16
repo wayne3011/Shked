@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Shked.UserDAL.Entities;
+using Shked.UserDAL.Infrastructure;
 using SkedAuthorization.Application.Data.DTO;
 using SkedAuthorization.Application.Data.Responses;
 using SkedAuthorization.Application.Infrastructure;
-using SkedAuthorization.DAL.Entities;
-using SkedAuthorization.DAL.Infrastructure;
 using SkedAuthorization.Application.Extensions;
 
 namespace SkedAuthorization.Application.Services;

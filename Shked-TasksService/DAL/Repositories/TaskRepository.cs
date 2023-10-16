@@ -1,3 +1,7 @@
+using System.Linq.Expressions;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
+using ShkedTasksService.Application.DTO;
 using ShkedTasksService.DAL.Entities;
 using ShkedTasksService.DAL.Infrastructure;
 
@@ -20,7 +24,12 @@ public class TaskRepository : ITaskRepository
         {
             return false;
         }
-
         return true;
+    }
+
+    public async Task<IEnumerable<TaskEntity>> FindAsync(Func<TaskEntity, bool> selector)
+    {
+
+        return (await _dbContext.Tasks.As(selector)).ToList();
     }
 }
