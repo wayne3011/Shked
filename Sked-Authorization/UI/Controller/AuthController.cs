@@ -7,6 +7,9 @@ using SkedAuthorization.Application.Services;
 namespace SkedAuthorization.UI.Controller;
 
 using Microsoft.AspNetCore.Mvc;
+/// <summary>
+/// Контроллер авторизации пользователя
+/// </summary>
 [Route("API/[Controller]/[Action]")]
 public class AuthController : Controller
 {

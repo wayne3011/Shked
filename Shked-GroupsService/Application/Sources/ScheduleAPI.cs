@@ -123,7 +123,7 @@ public class ScheduleAPI : IScheduleApi
         { "ЛК", "lecture" },
         { "ПЗ", "practical" },
         { "ЛР", "laboratory" },
-        { "ЭКЗ", "exam" },
+        { "Экзамен", "exam" },
     };
 
 }

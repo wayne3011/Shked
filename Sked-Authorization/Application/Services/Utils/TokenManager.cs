@@ -8,11 +8,12 @@ using SkedAuthorization.Application.Infrastructure;
 using SkedAuthorization.Application.Services.Options;
 
 namespace SkedAuthorization.Application.Services.Utils;
-
+/// <summary>
+/// Представляет собой реализацию <see cref="ITokenManager"/>
+/// </summary>
 public class TokenManager : ITokenManager
 {
     private readonly IOptions<AuthOptions> _options;
-
     public TokenManager(IOptions<AuthOptions> options)
     {
         _options = options;

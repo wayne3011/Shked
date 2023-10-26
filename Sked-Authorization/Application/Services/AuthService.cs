@@ -8,7 +8,9 @@ using SkedAuthorization.Application.Infrastructure;
 using SkedAuthorization.Application.Extensions;
 
 namespace SkedAuthorization.Application.Services;
-
+/// <summary>
+/// Представляет собой реализацию <see cref="IAuthService"/> бизнес-логики авторизации
+/// </summary>
 public class AuthService : IAuthService
 {
     private readonly IUserRepository _users;

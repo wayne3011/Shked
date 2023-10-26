@@ -4,7 +4,9 @@ using SkedAuthorization.Application.Data.Responses;
 
 namespace SkedAuthorization.Application.Services.Validators;
 using FluentValidation;
-
+/// <summary>
+/// Валидатор для модели <see cref="SignUpDTO"/> регистрации новой учётной записи пользователя
+/// </summary>
 public class SignUpDTOValidator : AbstractValidator<SignUpDTO>
 {
     public SignUpDTOValidator(IUserRepository userRepository)

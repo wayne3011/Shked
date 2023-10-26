@@ -23,7 +23,7 @@ builder.Services.AddTransient<ITasksService, TasksService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.Configure<UsersApiOptions>(builder.Configuration.GetSection("UsersApiOptions"));
+builder.Services.Configure<UsersApiOptions>(builder.Configuration.GetSection("UsersApiSettings"));
 var jwtOptions = builder.Configuration.GetSection("AuthOptions");
 builder.Services.Configure<TaskAttachmentsStorageApiOptions>(
     builder.Configuration.GetSection("TaskAttachmentsStorageApiSettings"));

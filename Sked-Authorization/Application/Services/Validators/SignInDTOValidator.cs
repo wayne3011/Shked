@@ -3,7 +3,9 @@ using SkedAuthorization.Application.Data.DTO;
 using SkedAuthorization.Application.Data.Responses;
 
 namespace SkedAuthorization.Application.Services.Validators;
-
+/// <summary>
+/// Валидатор для модели <see cref="SignInDTO"/> входа в учётную запись пользователя 
+/// </summary>
 public class SignInDTOValidator : AbstractValidator<SignInDTO>
 {
     public SignInDTOValidator()

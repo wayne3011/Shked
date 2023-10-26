@@ -30,6 +30,6 @@ public class TaskRepository : ITaskRepository
     public async Task<IEnumerable<TaskEntity>> FindAsync(Func<TaskEntity, bool> selector)
     {
 
-        return (await _dbContext.Tasks.As(selector)).ToList();
+        return (await _dbContext.Tasks.FindAsync(x => selector(x))).ToList();
     }
 }
