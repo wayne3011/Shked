@@ -6,7 +6,9 @@ using ShkedGroupsService.DAL.Options;
 
 
 namespace ShkedGroupsService.DAL;
-
+/// <summary>
+/// Представляет контекст БД учебных групп <see cref="IScheduleDbContext"/>
+/// </summary>
 public class ScheduleDbContext : IScheduleDbContext
 {
     public IMongoCollection<Schedule> Schedules { get; }

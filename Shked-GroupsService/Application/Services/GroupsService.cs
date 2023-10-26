@@ -6,7 +6,9 @@ using ShkedGroupsService.DAL.Infrastructure;
 using ShkedGroupsService.DAL.Models;
 
 namespace ShkedGroupsService.Application.Services;
-
+/// <summary>
+/// Представляет реализацию сервиса <see cref="IGroupsService"/> бизнес-логики, связанной с учебными группами
+/// </summary>
 public class GroupsService : IGroupsService
 {
     private readonly IScheduleApi _scheduleApi;

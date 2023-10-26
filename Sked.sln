@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sked-Authorization", "Sked-Authorization\Sked-Authorization.csproj", "{9E84FBB1-7883-4899-AED5-0035BBAEF4F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shked-Authorization", "Shked-Authorization\Shked-Authorization.csproj", "{9E84FBB1-7883-4899-AED5-0035BBAEF4F1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sked-Authorization.Tests", "Sked-Authorization.Tests\Sked-Authorization.Tests.csproj", "{8AEA22FD-E8F9-4F01-8374-8F6F75057AD9}"
 EndProject

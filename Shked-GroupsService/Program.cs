@@ -13,19 +13,20 @@ Log.Logger = new LoggerConfiguration()
     .CreateBootstrapLogger();
 
 var builder = WebApplication.CreateBuilder(args);
-
+//регестрируем Serilog
 builder.Logging.AddConsole();
 builder.Host.UseSerilog();
-
+//регистрация конфигураций
 builder.Services.Configure<MongoOptions>(builder.Configuration.GetSection("MongoOptions"));
 builder.Services.Configure<ScheduleAPIOptions>(builder.Configuration.GetSection("ScheduleApiOptions"));
-
+//регистрация сервисов
+builder.Services.AddTransient<IGroupsService,GroupsService>();
+//регистрация дополнительных компонентов
 builder.Services.AddTransient<IScheduleDbContext, ScheduleDbContext>();
 builder.Services.AddTransient<IScheduleRepository, ScheduleRepository>();
 builder.Services.AddTransient<IScheduleApi, ScheduleAPI>();
-builder.Services.AddTransient<IGroupsService,GroupsService>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
+//swagger
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 

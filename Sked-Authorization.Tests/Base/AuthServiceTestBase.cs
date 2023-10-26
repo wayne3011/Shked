@@ -2,7 +2,7 @@
 using AutoMapper;
 using Shked.UserDAL.Entities;
 using Shked.UserDAL.Infrastructure;
-using SkedAuthorization.Application.Data.DTO;
+using ShkedAuthorization.Application.Data.DTO;
 
 
 namespace Sked_Authorization.Tests.Base;

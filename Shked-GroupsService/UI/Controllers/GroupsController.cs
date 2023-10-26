@@ -3,6 +3,9 @@ using ShkedGroupsService.Application.DTO.ScheduleDTO;
 using ShkedGroupsService.Application.Infrastructure;
 
 namespace ShkedGroupsService.UI.Controllers;
+/// <summary>
+/// Контроллер учебных групп
+/// </summary>
 [Route("API/[controller]/")]
 public class GroupsController : ControllerBase
 {

@@ -5,7 +5,9 @@ using Shked.UserDAL.Entities;
 using Shked.UserDAL.Infrastructure;
 
 namespace Shked.UserDAL.DbContext;
-
+/// <summary>
+/// Представляет контекст БД пользователей <see cref="IUserDbContext"/>
+/// </summary>
 public class MongoUserDbContext : IUserDbContext
 {
     public MongoUserDbContext(IOptions<MongoOptions> settings)

@@ -2,11 +2,11 @@ using Moq;
 using Shked.UserDAL.Infrastructure;
 using Sked_Authorization.Tests.Base;
 using Sked_Authorization.Tests.Test.Data;
-using SkedAuthorization.Application.Data.DTO;
-using SkedAuthorization.Application.Data.Responses;
-using SkedAuthorization.Application.Infrastructure;
-using SkedAuthorization.Application.Services;
-using SkedAuthorization.Application.Services.Validators;
+using ShkedAuthorization.Application.Data.DTO;
+using ShkedAuthorization.Application.Data.Responses;
+using ShkedAuthorization.Application.Infrastructure;
+using ShkedAuthorization.Application.Services;
+using ShkedAuthorization.Application.Services.Validators;
 
 namespace Sked_Authorization.Tests;
 

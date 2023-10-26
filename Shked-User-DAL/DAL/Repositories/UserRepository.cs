@@ -5,7 +5,9 @@ using Shked.UserDAL.Infrastructure;
 
 
 namespace Shked.UserDAL.Repositories;
-
+/// <summary>
+/// Представляет реализацию коллекции пользователей <see cref="IUserRepository"/>
+/// </summary>
 public class UserRepository : IUserRepository
 {
     private readonly IUserDbContext _db;

@@ -4,7 +4,9 @@ using ShkedGroupsService.DAL.Models;
 using ShkedGroupsService.DAL.Infrastructure;
 
 namespace ShkedGroupsService.DAL.Repositories;
-
+/// <summary>
+/// Представляет репозиторий учебных групп <see cref="IScheduleRepository"/>
+/// </summary>
 public class ScheduleRepository : IScheduleRepository
 {
     private readonly IScheduleDbContext _context;

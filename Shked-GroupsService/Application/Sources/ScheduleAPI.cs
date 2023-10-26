@@ -9,7 +9,9 @@ using ShkedGroupsService.Application.Infrastructure;
 using ShkedGroupsService.DAL.Models;
 
 namespace ShkedGroupsService.Application.Sources;
-
+/// <summary>
+/// Представляет реализацию надстройку над API ВУЗа для получения расписания <see cref="IScheduleApi"/>
+/// </summary>
 public class ScheduleAPI : IScheduleApi
 {
     private readonly IOptions<ScheduleAPIOptions> _scheduleApiOptions;
@@ -36,7 +38,11 @@ public class ScheduleAPI : IScheduleApi
         }
         return ScheduleResponseDeserialize(content);
     }
-    
+    /// <summary>
+    /// Десереалиазация расписания полученного с API ВУЗа
+    /// </summary>
+    /// <param name="content"></param>
+    /// <returns></returns>
     private Schedule ScheduleResponseDeserialize(string content)
     {
         var dictionary = JsonSerializer.Deserialize<Dictionary<string,JsonElement>>(content);
@@ -117,7 +123,9 @@ public class ScheduleAPI : IScheduleApi
                 throw new Exception("Invalid class time");
         }
     }
-
+    /// <summary>
+    /// Сопоставление типов занятий
+    /// </summary>
     private readonly Dictionary<string, string> ClassType = new Dictionary<string, string>()
     {
         { "ЛК", "lecture" },
