@@ -1,8 +1,8 @@
 ﻿using Moq;
 using AutoMapper;
-using SkedAuthorization.Application.Data.DTO;
-using SkedAuthorization.DAL.Entities;
-using SkedAuthorization.DAL.Infrastructure;
+using Shked.UserDAL.Entities;
+using Shked.UserDAL.Infrastructure;
+using ShkedAuthorization.Application.Data.DTO;
 
 
 namespace Sked_Authorization.Tests.Base;

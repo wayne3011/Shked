@@ -1,4 +1,4 @@
-﻿using SkedAuthorization.Application.Data.DTO;
+﻿using ShkedAuthorization.Application.Data.DTO;
 
 namespace Sked_Authorization.Tests.Test.Data;
 

@@ -28,7 +28,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Sked-Authorization\Sked-Authorization.csproj" />
+      <ProjectReference Include="..\Shked-Authorization\Shked-Authorization.csproj" />
     </ItemGroup>
 
 
