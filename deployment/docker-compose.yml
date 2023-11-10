@@ -1,0 +1,92 @@
+version: '3.9'
+networks:
+  shked-dev:
+    driver: bridge
+services:
+  authservice:
+    container_name: shked-auth-service
+    build:
+      context: ../src/
+      dockerfile: ../src/Shked-Authorization/Dockerfile
+    networks:
+      - shked-dev
+    restart: always
+    ports:
+      - "100:100"
+    depends_on:
+      - mongodb
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:100/
+  userservice:
+    container_name: shked-user-service
+    build:
+      context: ../src/
+      dockerfile: ../src/Shked-UsersService/Dockerfile
+    networks: 
+      - shked-dev
+    restart: always
+    depends_on: 
+      - mongodb
+    ports:
+      - "110:110"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:110/
+  storageservice:
+    container_name: shked-storage-service
+    build:
+      context: ../src/
+      dockerfile: ../src/Shked-StorageService/Dockerfile
+    networks:
+      - shked-dev
+    restart: always
+    ports:
+      - "130:130"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:130/
+  groupservice:
+    container_name: shked-group-service
+    build:
+      context: ../src/
+      dockerfile: ../src/Shked-GroupsService/Dockerfile
+    networks:
+      - shked-dev
+    depends_on: 
+      - mongodb
+    restart: always
+    ports:
+      - "120:120"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:120/
+  
+  mongodb:
+    container_name: mongo-db
+    image: mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-db:/data/db
+    networks:
+      - shked-dev
+#  nginx:
+#    container_name: nginx
+#    image: nginx:mainline
+#    depends_on:   
+#      - auth_service
+#      - userservice
+#      - groupservice
+#    ports:
+#      - '443:443'
+#      - '80:80'
+#    volumes:
+#      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+#      - ./nginx/index.html:/etc/nginx/html/index.html
+#    networks:
+#      - shked-dev
+volumes:
+  mongo-db:
+
+    
