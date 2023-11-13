@@ -27,9 +27,10 @@ public class TaskRepository : ITaskRepository
         return true;
     }
 
-    public async Task<IEnumerable<TaskEntity>> FindAsync(Func<TaskEntity, bool> selector)
+    public async Task<IEnumerable<TaskEntity>> GetActualTasks(string groupName, string userId)
     {
-
-        return (await _dbContext.Tasks.FindAsync(x => selector(x))).ToList();
+        return (await _dbContext.Tasks.FindAsync(task => 
+            task.GroupName == groupName 
+            && ((task.UserID == userId && !task.IsPublic) || task.IsPublic))).ToList();
     }
 }

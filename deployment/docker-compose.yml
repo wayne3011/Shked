@@ -8,8 +8,9 @@ services:
     build:
       context: ../src/
       dockerfile: ../src/Shked-Authorization/Dockerfile
-    networks:
-      - shked-dev
+    network_mode: host
+#    networks:
+#      - shked-dev
     restart: always
     ports:
       - "100:100"
@@ -23,8 +24,9 @@ services:
     build:
       context: ../src/
       dockerfile: ../src/Shked-UsersService/Dockerfile
-    networks: 
-      - shked-dev
+    network_mode: host
+#    networks: 
+#      - shked-dev
     restart: always
     depends_on: 
       - mongodb
@@ -38,8 +40,9 @@ services:
     build:
       context: ../src/
       dockerfile: ../src/Shked-StorageService/Dockerfile
-    networks:
-      - shked-dev
+    network_mode: host
+#    networks:
+#      - shked-dev
     restart: always
     ports:
       - "130:130"
@@ -51,8 +54,9 @@ services:
     build:
       context: ../src/
       dockerfile: ../src/Shked-GroupsService/Dockerfile
-    networks:
-      - shked-dev
+    network_mode: host
+#    networks:
+#      - shked-dev
     depends_on: 
       - mongodb
     restart: always
@@ -69,8 +73,9 @@ services:
       - '27017:27017'
     volumes:
       - mongo-db:/data/db
-    networks:
-      - shked-dev
+    network_mode: host
+#    networks:
+#      - shked-dev
 #  nginx:
 #    container_name: nginx
 #    image: nginx:mainline

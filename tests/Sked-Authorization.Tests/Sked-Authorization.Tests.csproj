@@ -11,6 +11,9 @@
 
     <ItemGroup>
         <None Remove="xunit.runner.json" />
+        <Content Include="..\..\src\Shked-Authorization\Shked-Authorization.csproj">
+          <Link>Shked-Authorization.csproj</Link>
+        </Content>
         <Content Include="xunit.runner.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
@@ -28,10 +31,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Shked-Authorization\Shked-Authorization.csproj" />
+      <ProjectReference Include="..\..\src\Shked-Authorization\Shked-Authorization.csproj" />
     </ItemGroup>
-
-
-
-
 </Project>

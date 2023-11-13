@@ -1,5 +1,5 @@
-**/bin
-**/obj
-*appsettings.*
-**/.idea
-*launchSettings.json
+**/bin/**
+**/obj/**
+.idea/
+*.user
+*appsettings.*.json

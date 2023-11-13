@@ -20,6 +20,7 @@ builder.Services.AddTransient<IAuthService, AuthService>();
 //регистрация конфигураций
 var jwtOptions = builder.Configuration.GetSection("AuthOptions"); 
 builder.Services.Configure<AuthOptions>(jwtOptions);
+Console.WriteLine(jwtOptions["Issuer"]);
 builder.Services.Configure<MongoOptions>(builder.Configuration.GetSection("MongoOptions"));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt => opt.TokenValidationParameters = new TokenValidationParameters()

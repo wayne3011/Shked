@@ -6,5 +6,6 @@ namespace ShkedTasksService.DAL.Infrastructure;
 public interface ITaskRepository
 {
     Task<bool> CreateAsync(TaskEntity newTask);
-    Task<IEnumerable<TaskEntity>> FindAsync(Func<TaskEntity, bool> selector);
+    Task<IEnumerable<TaskEntity>> GetActualTasks(string groupName, string userId);
+    
 }

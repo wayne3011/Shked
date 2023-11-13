@@ -21,7 +21,7 @@ public class TaskController : ControllerBase
     {
         var userId = User.Identity.Name;
         if (userId == null) return Unauthorized();
-        taskDto.UserID = userId; 
+        taskDto.UserID = userId;
         var paths = await _tasksService.CreateTaskAsync(taskDto, formFileCollection);
         return paths != null ? Ok(paths) : StatusCode(StatusCodes.Status500InternalServerError);
     }

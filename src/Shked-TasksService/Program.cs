@@ -39,7 +39,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidAudience = jwtOptions["Audience"],
         ValidateIssuerSigningKey = false,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions["Secret"])),
-        ValidateLifetime = false,
+        ValidateLifetime = true,
         ValidateActor = false,
         ValidateTokenReplay = false
     });
