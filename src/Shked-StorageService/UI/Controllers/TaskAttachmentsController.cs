@@ -1,4 +1,7 @@
+
 using Microsoft.AspNetCore.Mvc;
+
+using ShkedStorageService.Application.DTO;
 using ShkedStorageService.Application.Infrastructure;
 
 namespace ShkedStorageService.UI.Controllers;
@@ -22,5 +25,14 @@ public class TaskAttachmentsController : ControllerBase
     {
         var fileDto = await _taskAttachmentsService.GetAttachmentAsync(path,fileName);
         return File(fileDto.FileStream, fileDto.ContentType,fileDto.FileName);
+    }
+
+    public async Task<ActionResult<CreationResult>> CreateTemporaryFile(IFormFile file, IFormFile miniature)
+    {
+        if(!Request.Headers.TryGetValue("X-User-Id", out var userIdHeader)) return Unauthorized();
+        var result = await _taskAttachmentsService.CreateTemporaryFileAsync(miniature, file, userIdHeader);
+        if (result == null) return StatusCode(500);
+        return result;
+
     }
 }

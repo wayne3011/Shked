@@ -14,6 +14,7 @@ namespace ShkedStorageService.Application.Services;
 public class TaskAttachmentsService : ITaskAttachmentsService
 {
     private readonly IAmazonS3 _s3client;
+    private readonly string ThumbnailsFolderName = "THUMBNAILS/";
     public TaskAttachmentsService(IAmazonS3 s3Client)
     {
         _s3client = s3Client;
@@ -41,14 +42,66 @@ public class TaskAttachmentsService : ITaskAttachmentsService
         return filePaths;
     }
 
-    public Task<IEnumerable<CreationResult>> CreateTemporaryFileAsync(IFormFile miniature, IFormFile file, string userId)
+    public async Task<CreationResult?> CreateTemporaryFileAsync(IFormFile miniature, IFormFile file, string userId)
     {
-        var bucketName = Convert.ToHexString(MD5.HashData(Encoding.UTF8.GetBytes(userId)));
+        var creationResult = new CreationResult();
+        var bucketName = "TEMP/" + Convert.ToHexString(MD5.HashData(Encoding.UTF8.GetBytes(userId)));
+
+        PutObjectResponse response;
+        if (!await UploadMiniatureAsync(miniature, file, bucketName, creationResult)) return null;
+        if (!await UploadFileAsync(file, bucketName, creationResult))
+        {
+            DeleteMiniatureAsync(bucketName, file.FileName);
+            return null;
+        }
+
+        return creationResult;
+    }
+
+    private async Task DeleteMiniatureAsync(string bucketName, string fileName)
+    {
+        var deleteMiniatureRequest = new DeleteObjectRequest()
+        {
+            BucketName = bucketName,
+            Key = ThumbnailsFolderName + fileName
+        };
+        await _s3client.DeleteObjectAsync(deleteMiniatureRequest);
+    }
+
+    private async Task<bool> UploadFileAsync(IFormFile file, string bucketName, CreationResult creationResult)
+    {
+        var uploadFileRequest = new PutObjectRequest()
+        {
+            BucketName = bucketName,
+            Key = file.FileName,
+            InputStream = file.OpenReadStream()
+        };
+        var response = await _s3client.PutObjectAsync(uploadFileRequest);
+        if (response.HttpStatusCode == HttpStatusCode.OK)
+        {
+            creationResult.FilePath = $"{bucketName}/{uploadFileRequest.Key}";
+            return true;
+        }
+        return false;
+    }
+
+    private async Task<bool> UploadMiniatureAsync(IFormFile miniature, IFormFile file, string bucketName,
+        CreationResult creationResult)
+    {
         var uploadMiniatureRequest = new PutObjectRequest()
         {
             BucketName = bucketName,
-            Key = "TEMP/" + 
+            Key = ThumbnailsFolderName + file.FileName,
+            InputStream = miniature.OpenReadStream()
+        };
+        var response = await _s3client.PutObjectAsync(uploadMiniatureRequest);
+        if (response.HttpStatusCode == HttpStatusCode.OK)
+        {
+            creationResult.ThumbnailPath = $"{bucketName}/{uploadMiniatureRequest.Key}";
+            return true;
         }
+        return false;
+
     }
 
     public async Task<FileDTO> GetAttachmentAsync(string folder, string fileName)
