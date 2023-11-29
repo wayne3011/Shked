@@ -1,3 +1,4 @@
+
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace ShkedTasksService.DAL.Entities;
@@ -13,5 +14,5 @@ public class TaskEntity
     public int LessonOrdinal { get; set; }
     public string Text { get; set; }
     public string GroupName { get; set; }
-    public IEnumerable<string> Attachments { get; set; }
+    public IEnumerable<Attachment> Attachments { get; set; }
 }

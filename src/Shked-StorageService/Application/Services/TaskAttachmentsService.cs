@@ -41,6 +41,16 @@ public class TaskAttachmentsService : ITaskAttachmentsService
         return filePaths;
     }
 
+    public Task<IEnumerable<CreationResult>> CreateTemporaryFileAsync(IFormFile miniature, IFormFile file, string userId)
+    {
+        var bucketName = Convert.ToHexString(MD5.HashData(Encoding.UTF8.GetBytes(userId)));
+        var uploadMiniatureRequest = new PutObjectRequest()
+        {
+            BucketName = bucketName,
+            Key = "TEMP/" + 
+        }
+    }
+
     public async Task<FileDTO> GetAttachmentAsync(string folder, string fileName)
     {
         var response = await _s3client.GetObjectAsync(folder, fileName);

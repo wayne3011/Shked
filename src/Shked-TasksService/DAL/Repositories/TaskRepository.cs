@@ -34,3 +34,12 @@ public class TaskRepository : ITaskRepository
             && ((task.UserID == userId && !task.IsPublic) || task.IsPublic))).ToList();
     }
 }
+
+// static public class MongoCollectionExtensions
+// {
+//     static public Task<IAsyncCursor<T>> FindAsync<T>(this IMongoCollection<T> mongoCollection, Func<T, bool> selector)
+//     {
+//         var fb = new FilterDefinitionBuilder<TaskEntity>();
+//         return mongoCollection.FindAsync(sele);
+//     }
+// }

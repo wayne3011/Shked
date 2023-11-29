@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.Extensions.Logging.Abstractions;
 using ShkedTasksService.Application.DTO;
 using ShkedTasksService.Application.Infrastructure;
 using ShkedTasksService.DAL.Entities;
@@ -20,16 +21,21 @@ public class TasksService : ITasksService
         _attachmentsStorage = attachmentsStorage;
         _usersApi = usersApi;
     }
-    public async Task<IEnumerable<string>?> CreateTaskAsync(TaskDTO taskDto, IFormFileCollection formFileCollection)
+    public async Task<IEnumerable<Attachment>?> CreateTaskAsync(TaskDTO taskDto, IFormFileCollection formFileCollection)
     {
         var newTask = _mapper.Map<TaskDTO, TaskEntity>(taskDto);
         var user = await _usersApi.GetById(taskDto.UserID);
         if (user == null) return null;
         newTask.GroupName = user.Group;
         newTask.Id = Guid.NewGuid().ToString();
-        try
+        var attachments = await _attachmentsStorage.CreateAttachments(formFileCollection, newTask.Id);
+        if (attachments == null)
         {
-            newTask.Attachments = await _attachmentsStorage.CreateAttachments(formFileCollection, newTask.Id);
+            return null;
+        }
+        newTask.Attachments = attachments;
+        try
+        { 
             await _taskRepository.CreateAsync(newTask);
         }
         catch (TimeoutException e)
@@ -46,5 +52,20 @@ public class TasksService : ITasksService
         if (user == null) return new List<TaskDTO>();
         var tasksEntity = await _taskRepository.GetActualTasks(user.Group,user.Id);
         return _mapper.Map<IEnumerable<TaskEntity>, IEnumerable<TaskDTO>>(tasksEntity);
+    }
+
+    public Task<bool> UploadTemporaryFile(IFormFile file, IFormFile miniature, string userId)
+    {
+        
+    }
+
+    public Task<bool> DeleteTemporaryFile(string filePath)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<AttachmentDto>> GetTemporaryFiles(string userId)
+    {
+        throw new NotImplementedException();
     }
 }
