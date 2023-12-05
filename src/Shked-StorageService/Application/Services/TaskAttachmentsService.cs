@@ -3,6 +3,7 @@ using System.Net;
 using System.Runtime.Intrinsics.Arm;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.AspNetCore.Mvc;
@@ -58,7 +59,7 @@ public class TaskAttachmentsService : ITaskAttachmentsService
         if (!await UploadMiniatureAsync(miniature, file, filesPath, creationResult)) return null;
         if (!await UploadFileAsync(file, miniaturePath, creationResult))
         {
-            DeleteMiniatureAsync(miniaturePath, file.FileName);
+            await DeleteMiniatureAsync(miniaturePath, file.FileName);
             return null;
         }
 
@@ -67,12 +68,55 @@ public class TaskAttachmentsService : ITaskAttachmentsService
 
     public async Task<bool> MoveToPermanentFiles(string userId, string taskId)
     {
-        var filesKey = await _s3client.GetAllObjectKeysAsync(_storageOptions.Value.BucketName, "TEMP/" + userId + '/', new Dictionary<string, object>());
-        foreach (var list in filesKey)
+        var listObjects = _s3client.Paginators.ListObjectsV2(new ListObjectsV2Request()
         {
-            string oldPath;
+            BucketName = _storageOptions.Value.BucketName,
+            Prefix = GetTempFilesPath(userId)
+        });
+        await foreach (var response in listObjects.Responses)
+        {
+            foreach (var s3Object in response.S3Objects.Where(x => !Regex.IsMatch(x.Key, $"TEMP/.*/{ThumbnailsFolderName}.*")))
+            {
+                string oldPath = s3Object.Key;
+                string fileName = oldPath.Substring(oldPath.LastIndexOf('/') + 1);
+                string oldThumbnailPath = GetTempThumbnailsPath(userId) + fileName;
+                string newPath = taskId + '/' + fileName;
+                string newThumbnailPath = taskId + '/' + ThumbnailsFolderName + fileName;
+                
+                var copyFileRequest = new CopyObjectRequest()
+                {
+                    SourceBucket = _storageOptions.Value.BucketName,
+                    DestinationBucket = _storageOptions.Value.BucketName,
+                    SourceKey = oldPath,
+                    DestinationKey = newPath
+                };
+                var copyThumbnailRequest = new CopyObjectRequest()
+                {
+                    SourceBucket = _storageOptions.Value.BucketName,
+                    DestinationBucket = _storageOptions.Value.BucketName,
+                    SourceKey = oldThumbnailPath,
+                    DestinationKey = newThumbnailPath
+                };
+                var copyObjectResponse = await _s3client.CopyObjectAsync(copyThumbnailRequest);
+                if (copyObjectResponse.HttpStatusCode != HttpStatusCode.OK) return false;
+                copyObjectResponse = await _s3client.CopyObjectAsync(copyFileRequest);
+                if (copyObjectResponse.HttpStatusCode != HttpStatusCode.OK) return false;
+
+                var deleteFileRequest = new DeleteObjectsRequest()
+                {
+                    BucketName = _storageOptions.Value.BucketName,
+                    Objects = new List<KeyVersion>()
+                    {
+                        new() { Key = oldPath },
+                        new() { Key = oldThumbnailPath }
+                    }
+                };
+                var deleteResponse = await _s3client.DeleteObjectsAsync(deleteFileRequest);
+                if (deleteResponse.HttpStatusCode != HttpStatusCode.OK) return false;
+            }
         }
-        
+
+        return true;
     }
 
     // public async Task<FileDTO?> GetFileThumbnail(string fileName, string userId)
@@ -174,5 +218,34 @@ public class TaskAttachmentsService : ITaskAttachmentsService
         };
         return fileDto;
     }
-    
+
+    public async Task<FileDTO?> GetTemporaryThumbnail(string userId, string fileName)
+    {
+        var thumbnailKey = GetTempThumbnailsPath(userId) + fileName;
+        var s3Object = await _s3client.GetObjectAsync(_storageOptions.Value.BucketName, thumbnailKey);
+        if (s3Object.HttpStatusCode != HttpStatusCode.OK) return null;
+        var fileDto = new FileDTO()
+        {
+            FileName = fileName,
+            ContentType = s3Object.Metadata["Content-Type"],
+            FileStream = s3Object.ResponseStream,
+            LastModified = s3Object.LastModified
+        };
+        return fileDto;
+    }
+
+    public async Task<FileDTO?> GetTemporaryFile(string userId, string fileName)
+    {
+        var filePath = GetTempFilesPath(userId) + fileName;
+        var s3Object = await _s3client.GetObjectAsync(_storageOptions.Value.BucketName, filePath);
+        if (s3Object.HttpStatusCode != HttpStatusCode.OK) return null;
+        var fileDto = new FileDTO()
+        {
+            FileName = fileName,
+            ContentType = s3Object.Metadata["Content-Type"],
+            FileStream = s3Object.ResponseStream,
+            LastModified = s3Object.LastModified
+        };
+        return fileDto;
+    }
 }

@@ -9,4 +9,6 @@ public interface ITaskAttachmentsService
     // Task<FileDTO?> GetFileThumbnail(string fileName, string userId);
     Task<bool> MoveToPermanentFiles(string userId, string taskId);
     Task<FileDTO> GetAttachmentAsync(string folder, string fileName);
+    Task<FileDTO?> GetTemporaryThumbnail(string userId, string fileName);
+    Task<FileDTO?> GetTemporaryFile(string userId, string fileName);
 }
