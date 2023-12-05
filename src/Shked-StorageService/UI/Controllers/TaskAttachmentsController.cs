@@ -1,6 +1,7 @@
 
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Net.Http.Headers;
 using ShkedStorageService.Application.DTO;
 using ShkedStorageService.Application.Infrastructure;
 
@@ -13,26 +14,21 @@ public class TaskAttachmentsController : ControllerBase
     {
         _taskAttachmentsService = taskAttachmentsService;       
     }
-    [Route("Create/{taskId}")]
-    [HttpPost]
-    public async Task<IActionResult> TaskAttachmentsCreate([FromRoute]string taskId, [FromForm]IFormFileCollection attachments)
-    {
-        return Ok(await _taskAttachmentsService.CreateAttachmentsAsync(attachments, taskId));
-    }
-    [Route("{path}/{fileName}")]
-    [HttpGet]
-    public async Task<FileResult> GetTaskAttachments(string path, string fileName)
-    {
-        var fileDto = await _taskAttachmentsService.GetAttachmentAsync(path,fileName);
-        return File(fileDto.FileStream, fileDto.ContentType,fileDto.FileName);
-    }
-
     [HttpGet]
     [Route("TEMP/Thumbnails/{fileName}")]
     public async Task<IActionResult> GetTemporaryThumbnail(string fileName)
     {
         if(!Request.Headers.TryGetValue("X-User-Id", out var userIdHeader)) return Unauthorized();
-        var fileDto = await _taskAttachmentsService.GetTemporaryThumbnail(userIdHeader, fileName);
+        var fileDto = await _taskAttachmentsService.GetTemporaryThumbnailAsync(userIdHeader, fileName);
+        return File(fileDto.FileStream, fileDto.ContentType, fileDto.FileName, fileDto.LastModified, new EntityTagHeaderValue('"' + fileDto.LastModified.ToString() + '"'));
+    }
+    [HttpGet]
+    [Route("TEMP/{fileName}")]
+    public async Task<IActionResult> GetTemporaryFile(string fileName)
+    {
+        if(!Request.Headers.TryGetValue("X-User-Id", out var userIdHeader)) return Unauthorized();
+        var fileDto = await _taskAttachmentsService.GetTemporaryFileAsync(userIdHeader, fileName);
+        return File(fileDto.FileStream, fileDto.ContentType, fileDto.FileName, fileDto.LastModified, new EntityTagHeaderValue('"' + fileDto.LastModified.ToString() + '"'));
     }
     [HttpPost]
     [Route("TEMP/")]
@@ -46,12 +42,50 @@ public class TaskAttachmentsController : ControllerBase
     }
 
     [HttpDelete]
-    [Route("TEMP/{taskId}")]
-    public async Task<ActionResult> MoveToPermanentFiles(string taskId)
+    [Route("TEMP/ToPermanent")]
+    public async Task<ActionResult> MoveToPermanentFiles([FromQuery] string taskId)
     {   
         if (!Request.Headers.TryGetValue("X-User-Id", out var userIdHeader)) return Unauthorized();
-        var result = await _taskAttachmentsService.MoveToPermanentFiles(userIdHeader, taskId);
+        var result = await _taskAttachmentsService.MoveToPermanentFilesAsync(userIdHeader, taskId);
         if (!result) return StatusCode(500);
         return Ok();
+    }
+
+    [HttpDelete]
+    [Route("TEMP/{fileName}")]
+    public async Task<ActionResult> DeleteTemporaryFile(string fileName)
+    {
+        if (!Request.Headers.TryGetValue("X-User-Id", out var userIdHeader)) return Unauthorized();
+        var result = await _taskAttachmentsService.DeleteTemporaryFileAsync(userIdHeader, fileName);
+        if (!result) return StatusCode(500);
+        return StatusCode((int)HttpStatusCode.NoContent);; 
+    }
+
+    [HttpGet]
+    [Route("{taskId}/{fileName}")]
+    public async Task<ActionResult> GetPermanentFile(string taskId, string fileName)
+    {
+        var result = await _taskAttachmentsService.GetTaskAttachment(taskId, fileName);
+        if (result == null) return StatusCode(500);
+        return File(result.FileStream, result.ContentType, result.FileName, result.LastModified,
+            new EntityTagHeaderValue('"' + result.LastModified.ToString() + '"'));
+    }
+    [HttpGet]
+    [Route("{taskId}/Thumbnails/{fileName}")]
+    public async Task<ActionResult> GetFileThumbnail(string taskId, string fileName)
+    {
+        var result = await _taskAttachmentsService.GetTaskAttachmentThumbnail(taskId, fileName);
+        if (result == null) return StatusCode(500);
+        return File(result.FileStream, result.ContentType, result.FileName, result.LastModified,
+            new EntityTagHeaderValue('"' + result.LastModified.ToString() + '"'));
+    }
+
+    [HttpDelete]
+    [Route("{taskId}/{fileName}")]
+    public async Task<ActionResult> DeleteTemporaryFile(string taskId, string fileName)
+    {
+        var result = await _taskAttachmentsService.DeletePermanentFileAsync(taskId, fileName);
+        if (!result) return StatusCode(500);
+        return StatusCode((int)HttpStatusCode.NoContent);
     }
 }

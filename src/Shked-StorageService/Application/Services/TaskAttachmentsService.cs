@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Net;
+using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Intrinsics.Arm;
 using System.Security.Cryptography;
 using System.Text;
@@ -26,29 +27,6 @@ public class TaskAttachmentsService : ITaskAttachmentsService
 
     private string GetTempFilesPath(string userId) => "TEMP/" + userId + '/';
     private string GetTempThumbnailsPath(string userId) => "TEMP/" + userId + '/' + "THUMBNAILS/";
-    public async Task<IEnumerable<string>> CreateAttachmentsAsync(IFormFileCollection fileStream, string taskId)
-    {
-        var path = Convert.ToHexString(MD5.HashData(Encoding.UTF8.GetBytes(taskId)));
-        var filePaths = new List<string?>();
-        foreach (var file in fileStream)
-        {
-            var request = new PutObjectRequest()
-            {
-                BucketName = _storageOptions.Value.BucketName,
-                Key = path + file.FileName,
-                InputStream = file.OpenReadStream()
-            };
-            request.Metadata.Add("Content-Type", file.ContentType);
-            var response = await _s3client.PutObjectAsync(request);
-            if (response.HttpStatusCode == HttpStatusCode.OK)
-            {
-                filePaths.Add($"{request.BucketName}/{request.Key}");
-            }
-        }
-
-        return filePaths;
-    }
-
     public async Task<CreationResult?> CreateTemporaryFileAsync(IFormFile miniature, IFormFile file, string userId)
     {
         var creationResult = new CreationResult();
@@ -66,7 +44,7 @@ public class TaskAttachmentsService : ITaskAttachmentsService
         return creationResult;
     }
 
-    public async Task<bool> MoveToPermanentFiles(string userId, string taskId)
+    public async Task<bool> MoveToPermanentFilesAsync(string userId, string taskId)
     {
         var listObjects = _s3client.Paginators.ListObjectsV2(new ListObjectsV2Request()
         {
@@ -102,47 +80,13 @@ public class TaskAttachmentsService : ITaskAttachmentsService
                 copyObjectResponse = await _s3client.CopyObjectAsync(copyFileRequest);
                 if (copyObjectResponse.HttpStatusCode != HttpStatusCode.OK) return false;
 
-                var deleteFileRequest = new DeleteObjectsRequest()
-                {
-                    BucketName = _storageOptions.Value.BucketName,
-                    Objects = new List<KeyVersion>()
-                    {
-                        new() { Key = oldPath },
-                        new() { Key = oldThumbnailPath }
-                    }
-                };
-                var deleteResponse = await _s3client.DeleteObjectsAsync(deleteFileRequest);
-                if (deleteResponse.HttpStatusCode != HttpStatusCode.OK) return false;
+                return await DeleteTemporaryFileAsync(userId, fileName);
             }
         }
 
         return true;
     }
-
-    // public async Task<FileDTO?> GetFileThumbnail(string fileName, string userId)
-    // {
-    //     try
-    //     {
-    //         var path = "TEMP/" + userId + '/' + ThumbnailsFolderName + fileName;
-    //         var response = await _s3client.GetObjectAsync(_storageOptions.Value.BucketName, path);
-    //         if (response.HttpStatusCode != HttpStatusCode.OK) return null;
-    //         var fileDto = new FileDTO()
-    //         {
-    //             FileName = fileName,
-    //             ContentType = response.Metadata["Content-Type"],
-    //             FileStream = response.ResponseStream,
-    //             LastModified = response.LastModified
-    //         };
-    //         return fileDto;
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         Console.WriteLine(e);
-    //         return null;
-    //     }
-    //
-    // }
-
+    
     private async Task DeleteMiniatureAsync(string path, string fileName)
     {
         var deleteMiniatureRequest = new DeleteObjectRequest()
@@ -206,20 +150,7 @@ public class TaskAttachmentsService : ITaskAttachmentsService
         }
     }
     
-    public async Task<FileDTO> GetAttachmentAsync(string folder, string fileName)
-    {
-        var response = await _s3client.GetObjectAsync(folder, fileName);
-        var fileDto = new FileDTO()
-        {
-            FileName = fileName,
-            ContentType = response.Metadata["Content-Type"],
-            FileStream = response.ResponseStream,
-            LastModified = response.LastModified
-        };
-        return fileDto;
-    }
-
-    public async Task<FileDTO?> GetTemporaryThumbnail(string userId, string fileName)
+    public async Task<FileDTO?> GetTemporaryThumbnailAsync(string userId, string fileName)
     {
         var thumbnailKey = GetTempThumbnailsPath(userId) + fileName;
         var s3Object = await _s3client.GetObjectAsync(_storageOptions.Value.BucketName, thumbnailKey);
@@ -234,7 +165,7 @@ public class TaskAttachmentsService : ITaskAttachmentsService
         return fileDto;
     }
 
-    public async Task<FileDTO?> GetTemporaryFile(string userId, string fileName)
+    public async Task<FileDTO?> GetTemporaryFileAsync(string userId, string fileName)
     {
         var filePath = GetTempFilesPath(userId) + fileName;
         var s3Object = await _s3client.GetObjectAsync(_storageOptions.Value.BucketName, filePath);
@@ -247,5 +178,96 @@ public class TaskAttachmentsService : ITaskAttachmentsService
             LastModified = s3Object.LastModified
         };
         return fileDto;
+    }
+
+    public async Task<bool> DeleteTemporaryFileAsync(string userId, string fileName)
+    {
+        try
+        {
+            var deleteObjectRequest = new DeleteObjectsRequest()
+            {
+                BucketName = _storageOptions.Value.BucketName,
+                Objects = new List<KeyVersion>()
+                {
+                    new() { Key = GetTempFilesPath(userId) + fileName },
+                    new() { Key = GetTempThumbnailsPath(userId) + fileName }
+                }
+            };
+            var response = await _s3client.DeleteObjectsAsync(deleteObjectRequest);
+
+            return response.HttpStatusCode == HttpStatusCode.OK;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+    }
+
+    public async Task<FileDTO?> GetTaskAttachment(string taskId, string filename)
+    {
+        try
+        {
+            var response = await _s3client.GetObjectAsync(_storageOptions.Value.BucketName, taskId + '/' + filename);
+            if (response.HttpStatusCode != HttpStatusCode.OK) return null;
+            var fileDto = new FileDTO()
+            {
+                ContentType = response.Metadata["Content-Type"],
+                FileName = filename,
+                FileStream = response.ResponseStream,
+                LastModified = response.LastModified
+            };
+            return fileDto;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return null;
+        }
+    }
+
+    public async Task<FileDTO> GetTaskAttachmentThumbnail(string taskId, string fileName)
+    {
+        try
+        {
+            var response = await _s3client.GetObjectAsync(_storageOptions.Value.BucketName, taskId + '/' + ThumbnailsFolderName + fileName);
+            if (response.HttpStatusCode != HttpStatusCode.OK) return null;
+            var fileDto = new FileDTO()
+            {
+                ContentType = response.Metadata["Content-Type"],
+                FileName = fileName,
+                FileStream = response.ResponseStream,
+                LastModified = response.LastModified
+            };
+            return fileDto;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return null;
+        }
+    }
+
+    public async Task<bool> DeletePermanentFileAsync(string taskId, string fileName)
+    {
+        try
+        {
+            var deleteObjectsRequest = new DeleteObjectsRequest()
+            {
+                BucketName = _storageOptions.Value.BucketName,
+                Objects = new List<KeyVersion>()
+                {
+                    new() { Key = taskId + '/' + fileName },
+                    new() { Key = taskId + '/' + ThumbnailsFolderName + fileName }
+                }
+            };
+            var response = await _s3client.DeleteObjectsAsync(deleteObjectsRequest);
+            return response.HttpStatusCode == HttpStatusCode.OK;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
     }
 }
