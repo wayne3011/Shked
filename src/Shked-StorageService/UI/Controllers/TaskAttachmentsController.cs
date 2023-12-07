@@ -32,10 +32,10 @@ public class TaskAttachmentsController : ControllerBase
     }
     [HttpPost]
     [Route("TEMP/")]
-    public async Task<ActionResult<CreationResult>> CreateTemporaryFile(IFormFile file, IFormFile miniature)
-    {
+    public async Task<ActionResult<CreationResult>> CreateTemporaryFile([FromForm]IFormFile file, [FromForm]IFormFile thumbnail)
+        {
         if(!Request.Headers.TryGetValue("X-User-Id", out var userIdHeader)) return Unauthorized();
-        var result = await _taskAttachmentsService.CreateTemporaryFileAsync(miniature, file, userIdHeader);
+        var result = await _taskAttachmentsService.CreateTemporaryFileAsync(thumbnail, file, userIdHeader);
         if (result == null) return StatusCode(500);
         return result;
 
@@ -43,12 +43,12 @@ public class TaskAttachmentsController : ControllerBase
 
     [HttpDelete]
     [Route("TEMP/ToPermanent")]
-    public async Task<ActionResult> MoveToPermanentFiles([FromQuery] string taskId)
+    public async Task<ActionResult<List<FileDTO>>> MoveToPermanentFiles([FromQuery] string taskId)
     {   
         if (!Request.Headers.TryGetValue("X-User-Id", out var userIdHeader)) return Unauthorized();
         var result = await _taskAttachmentsService.MoveToPermanentFilesAsync(userIdHeader, taskId);
-        if (!result) return StatusCode(500);
-        return Ok();
+        if (result == null) return StatusCode(500);
+        return Ok(result);
     }
 
     [HttpDelete]

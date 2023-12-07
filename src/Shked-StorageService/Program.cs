@@ -20,6 +20,7 @@ builder.Services.AddAWSService<IAmazonS3>(new AWSOptions()
     },
     Profile = "s3"
 });
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.Configure<StorageOptions>(AWSOptions);
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();

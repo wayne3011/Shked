@@ -17,5 +17,5 @@ public class TaskDTO
     [JsonPropertyName("text")]
     public string Text { get; set; }
     [JsonPropertyName("attachments")]
-    public IEnumerable<string> Attachments { get; set; }
+    public IEnumerable<AttachmentDto> Attachments { get; set; }
 }

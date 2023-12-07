@@ -34,8 +34,8 @@ public class TaskAttachmentsService : ITaskAttachmentsService
         var miniaturePath = GetTempThumbnailsPath(userId);
         
         PutObjectResponse response;
-        if (!await UploadMiniatureAsync(miniature, file, filesPath, creationResult)) return null;
-        if (!await UploadFileAsync(file, miniaturePath, creationResult))
+        if (!await UploadMiniatureAsync(miniature, file, miniaturePath, creationResult)) return null;
+        if (!await UploadFileAsync(file, filesPath, creationResult))
         {
             await DeleteMiniatureAsync(miniaturePath, file.FileName);
             return null;
@@ -44,8 +44,9 @@ public class TaskAttachmentsService : ITaskAttachmentsService
         return creationResult;
     }
 
-    public async Task<bool> MoveToPermanentFilesAsync(string userId, string taskId)
+    public async Task<List<FileDTO>?>  MoveToPermanentFilesAsync(string userId, string taskId)
     {
+        List<FileDTO> resultFileNames = new List<FileDTO>();
         var listObjects = _s3client.Paginators.ListObjectsV2(new ListObjectsV2Request()
         {
             BucketName = _storageOptions.Value.BucketName,
@@ -76,15 +77,20 @@ public class TaskAttachmentsService : ITaskAttachmentsService
                     DestinationKey = newThumbnailPath
                 };
                 var copyObjectResponse = await _s3client.CopyObjectAsync(copyThumbnailRequest);
-                if (copyObjectResponse.HttpStatusCode != HttpStatusCode.OK) return false;
+                if (copyObjectResponse.HttpStatusCode != HttpStatusCode.OK) return null;
                 copyObjectResponse = await _s3client.CopyObjectAsync(copyFileRequest);
-                if (copyObjectResponse.HttpStatusCode != HttpStatusCode.OK) return false;
-
-                return await DeleteTemporaryFileAsync(userId, fileName);
+                if (copyObjectResponse.HttpStatusCode != HttpStatusCode.OK) return null;
+                await DeleteTemporaryFileAsync(userId, fileName);
+                resultFileNames.Add(new FileDTO()
+                {
+                    FileName = fileName,
+                    LastModified = s3Object.LastModified,
+                    Extension = fileName.LastIndexOf('.') == -1 ? "" : fileName.Substring(fileName.LastIndexOf('.')),
+                    SizeKb = s3Object.Size / 1024,
+                });
             }
         }
-
-        return true;
+        return resultFileNames;
     }
     
     private async Task DeleteMiniatureAsync(string path, string fileName)
@@ -160,7 +166,9 @@ public class TaskAttachmentsService : ITaskAttachmentsService
             FileName = fileName,
             ContentType = s3Object.Metadata["Content-Type"],
             FileStream = s3Object.ResponseStream,
-            LastModified = s3Object.LastModified
+            LastModified = s3Object.LastModified,
+            Extension = fileName.LastIndexOf('.') == -1 ? "" : fileName.Substring(fileName.LastIndexOf('.')),
+            SizeKb = s3Object.ResponseStream.Length / 1024,
         };
         return fileDto;
     }
@@ -175,7 +183,9 @@ public class TaskAttachmentsService : ITaskAttachmentsService
             FileName = fileName,
             ContentType = s3Object.Metadata["Content-Type"],
             FileStream = s3Object.ResponseStream,
-            LastModified = s3Object.LastModified
+            LastModified = s3Object.LastModified,
+            Extension = fileName.LastIndexOf('.') == -1 ? "" : fileName.Substring(fileName.LastIndexOf('.')),
+            SizeKb = s3Object.ResponseStream.Length / 1024,
         };
         return fileDto;
     }
@@ -215,7 +225,9 @@ public class TaskAttachmentsService : ITaskAttachmentsService
                 ContentType = response.Metadata["Content-Type"],
                 FileName = filename,
                 FileStream = response.ResponseStream,
-                LastModified = response.LastModified
+                LastModified = response.LastModified,
+                Extension = filename.LastIndexOf('.') == -1 ? "" : filename.Substring(filename.LastIndexOf('.')),
+                SizeKb = response.ResponseStream.Length / 1024,
             };
             return fileDto;
         }
@@ -237,7 +249,9 @@ public class TaskAttachmentsService : ITaskAttachmentsService
                 ContentType = response.Metadata["Content-Type"],
                 FileName = fileName,
                 FileStream = response.ResponseStream,
-                LastModified = response.LastModified
+                LastModified = response.LastModified,
+                Extension = fileName.LastIndexOf('.') == -1 ? "" : fileName.Substring(fileName.LastIndexOf('.')),
+                SizeKb = response.ResponseStream.Length / 1024,
             };
             return fileDto;
         }

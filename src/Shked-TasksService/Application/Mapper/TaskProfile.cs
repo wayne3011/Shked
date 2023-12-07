@@ -10,5 +10,6 @@ public class TaskProfile : Profile
     {
         CreateMap<TaskDTO, TaskEntity>();
         CreateMap<TaskEntity, TaskDTO>();
+        CreateMap<AttachmentDto, Attachment>().ReverseMap();
     }
 }

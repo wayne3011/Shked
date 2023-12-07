@@ -30,22 +30,40 @@ public class TasksService : ITasksService
         return _mapper.Map<IEnumerable<TaskEntity>, IEnumerable<TaskDTO>>(tasksEntity);
     }
 
-    public async Task<bool> UploadTemporaryFile(IFormFile file, IFormFile miniature, string userId)
+    public async Task<TaskDTO?> CreateTaskAsync(string userId, TaskDTO taskDto)
+    {
+        var user = await _usersApi.GetById(userId);
+        if (user == null) return null;
+        
+        string taskId = Guid.NewGuid().ToString();
+        taskDto.Id = taskId;
+        taskDto.UserID = userId;
+        
+        var response = await _attachmentsStorage.MoveFilesToPermanentAsync(userId, taskId);
+        if (response == null) return null;
+        taskDto.Attachments = response;
+
+        var result = await _taskRepository.CreateAsync(_mapper.Map<TaskEntity>(taskDto));
+        if (result) return taskDto;
+        return null;
+    }
+
+    public async Task<bool> UploadTemporaryFileAsync(IFormFile file, IFormFile miniature, string userId)
     {
         return await _attachmentsStorage.UploadTemporaryFile(file, miniature, userId);
     }
 
-    public Task<bool> DeleteTemporaryFile(string fileName)
+    public async Task<bool> DeleteTemporaryFileAsync(string fileName, string userId)
+    {
+        return await _attachmentsStorage.DeleteTemporaryFile(fileName, userId);
+    }
+
+    public Task<AttachmentDto> GetTemporaryThumbnailAsync(string fileName)
     {
         throw new NotImplementedException();
     }
 
-    public Task<AttachmentDto> GetTemporaryThumbnail(string fileName)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<AttachmentDto> GetTemporaryFile(string userId)
+    public Task<AttachmentDto> GetTemporaryFileAsync(string userId)
     {
         throw new NotImplementedException();
     }

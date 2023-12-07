@@ -5,7 +5,7 @@ namespace ShkedStorageService.Application.Infrastructure;
 public interface ITaskAttachmentsService
 {
     Task<CreationResult?> CreateTemporaryFileAsync(IFormFile miniature, IFormFile file, string userId);
-    Task<bool> MoveToPermanentFilesAsync(string userId, string taskId);
+    Task<List<FileDTO>?> MoveToPermanentFilesAsync(string userId, string taskId);
     Task<FileDTO?> GetTemporaryThumbnailAsync(string userId, string fileName);
     Task<FileDTO?> GetTemporaryFileAsync(string userId, string fileName);
     Task<bool> DeleteTemporaryFileAsync(string userId, string fileName);

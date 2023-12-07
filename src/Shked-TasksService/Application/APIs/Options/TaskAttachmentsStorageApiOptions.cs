@@ -8,4 +8,5 @@ public class TaskAttachmentsStorageApiOptions
     public string ThumbnailsFolder { get; set; }
     public string FileKey { get; set; }
     public string ThumbnailKey { get; set; }
+    public string ToPermanentMethod { get; set; }
 }
