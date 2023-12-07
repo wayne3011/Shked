@@ -1,3 +1,4 @@
+using System.Net;
 using ShkedTasksService.Application.Infrastructure;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -18,41 +19,30 @@ public class TaskAttachmentsStorageApi : ITaskAttachmentsStorageApi
         _options = options;
         _httpClient = new HttpClient();
     }
-    public async Task<IEnumerable<Attachment>?> CreateAttachments(IFormFileCollection files, string taskId)
+    public async Task<bool> UploadTemporaryFile(IFormFile file, IFormFile thumbnail, string userId)
     {
-        var form = new MultipartFormDataContent();
-        List<Attachment> attachments = new List<Attachment>();
-        foreach (var file in files)
-        {
-            var fileExtension = file.FileName.Split(new[] { '.' }).TakeLastIfNotOnly();
-            var fileName = fileExtension is null ? file.FileName : file.FileName.Remove(file.FileName.LastIndexOf('.'));
-            var attachment = new Attachment()
-            {
-                Extension = fileExtension,
-                FileName = fileName,
-                SizeKb = file.Length / 1024,
-                Thumbnail = "none"
-            };
-            attachments.Add(attachment);
-            var streamContent = new StreamContent(file.OpenReadStream());
-            streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-            form.Add(streamContent, _options.Value.FilesKey, file.FileName);
-        }
-
-        Uri uri = new Uri(_options.Value.ServiceUrl + _options.Value.CollectionPath + "/Create" + $"/{taskId}");
-        var response = await _httpClient.PostAsync(uri, form);
-        var content = await response.Content.ReadAsStringAsync();
-        var paths = JsonSerializer.Deserialize<List<string>>(content);
-        if (paths != null)
-        {
-            for (int i = 0; i < paths.Count; i++)
-            {
-                attachments[i].Path = paths[i];
-            }
-        }
-        else return null;
+        var temporaryFilesUri =
+            new Uri(_options.Value.ServiceUrl + _options.Value.CollectionPath + _options.Value.TempFolder);
+        MultipartFormDataContent multipartFormDataContent = new MultipartFormDataContent();
         
-        return attachments;
+        var fileStreamContent = new StreamContent(file.OpenReadStream());
+        fileStreamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+        multipartFormDataContent.Add(fileStreamContent, _options.Value.FileKey, file.FileName);     
+        
+        var secondStreamContent = new StreamContent(file.OpenReadStream());
+        secondStreamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+        multipartFormDataContent.Add(secondStreamContent, _options.Value.ThumbnailKey, file.FileName);
+        
+        multipartFormDataContent.Add(fileStreamContent);
+        multipartFormDataContent.Add(secondStreamContent);
+
+        var response = await _httpClient.PostAsync(temporaryFilesUri, multipartFormDataContent);
+        if (response.StatusCode != HttpStatusCode.OK) return false;
+        return true;
     }
 
+    public Task<bool> DeleteTemporaryFile(string fileName, string userId)
+    {
+        var temporary;
+    }
 }

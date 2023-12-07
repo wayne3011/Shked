@@ -4,5 +4,6 @@ namespace ShkedTasksService.Application.Infrastructure;
 
 public interface ITaskAttachmentsStorageApi
 {
-    Task<IEnumerable<Attachment>?> CreateAttachments(IFormFileCollection files, string taskId);
+    Task<bool> UploadTemporaryFile(IFormFile file, IFormFile thumbnail, string userId);
+    Task<bool> DeleteTemporaryFile(string fileName, string userId);
 }
