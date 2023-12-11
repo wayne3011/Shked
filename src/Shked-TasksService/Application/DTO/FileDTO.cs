@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace ShkedStorageService.Application.DTO;
+namespace ShkedTasksService.Application.DTO;
 
 public class FileDTO
 {

@@ -33,13 +33,16 @@ public class TaskRepository : ITaskRepository
             task.GroupName == groupName 
             && ((task.UserID == userId && !task.IsPublic) || task.IsPublic))).ToList();
     }
-}
 
-// static public class MongoCollectionExtensions
-// {
-//     static public Task<IAsyncCursor<T>> FindAsync<T>(this IMongoCollection<T> mongoCollection, Func<T, bool> selector)
-//     {
-//         var fb = new FilterDefinitionBuilder<TaskEntity>();
-//         return mongoCollection.FindAsync(sele);
-//     }
-// }
+    public async Task<TaskEntity?> FindAsync(string taskId)
+    {
+        var cursor = (await _dbContext.Tasks.FindAsync(x => x.Id == taskId)).ToList();
+        return cursor.Any() ? cursor.First() : null;
+    }
+
+    public async Task<bool> DeleteAsync(string taskId)
+    {
+        var result = await _dbContext.Tasks.DeleteOneAsync(x => x.Id == taskId);
+        return result.DeletedCount == 1;
+    }
+}

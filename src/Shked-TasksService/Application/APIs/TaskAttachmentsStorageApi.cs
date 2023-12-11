@@ -3,6 +3,7 @@ using ShkedTasksService.Application.Infrastructure;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using ShkedTasksService.Application.APIs.Options;
@@ -64,4 +65,74 @@ public class TaskAttachmentsStorageApi : ITaskAttachmentsStorageApi
         }
         return null;
     }
+
+    public async Task<IEnumerable<AttachmentDto>?> GetListOfTemporaryFile(string userId)
+    {
+        _httpClient.DefaultRequestHeaders.Add("X-User-Id", userId);
+        var uri = new Uri(_options.Value.ServiceUrl + _options.Value.CollectionPath 
+                                                    + _options.Value.TempFolder);
+        var response = await _httpClient.GetAsync(uri);
+        if (response.IsSuccessStatusCode)
+        {
+            var strContent = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<IEnumerable<AttachmentDto>>(strContent);
+        }
+
+        return null;
+    }
+
+    public async Task<FileDTO?> GetTemporaryThumbnailAsync(string filename, string userId)
+    {
+        _httpClient.DefaultRequestHeaders.Add("X-User-Id", userId);
+        var uri = new Uri(_options.Value.ServiceUrl + _options.Value.CollectionPath + _options.Value.TempFolder + _options.Value.ThumbnailsFolder + filename);
+        var response = await _httpClient.GetAsync(uri);
+        
+        return response.IsSuccessStatusCode ? await ReadFileDto(response) : null;
+    }
+    
+    public async Task<FileDTO?> GetTemporaryFileAsync(string filename, string userId)
+    {
+        _httpClient.DefaultRequestHeaders.Add("X-User-Id", userId);
+        var uri = new Uri(_options.Value.ServiceUrl + _options.Value.CollectionPath + _options.Value.TempFolder + filename);
+        var response = await _httpClient.GetAsync(uri);
+        
+        return response.IsSuccessStatusCode ? await ReadFileDto(response) : null;
+    }
+
+    public async Task<FileDTO?> GetPermanentThumbnail(string filename, string taskId)
+    {
+        var uri = new Uri(_options.Value.ServiceUrl + _options.Value.CollectionPath + taskId + '/' + _options.Value.ThumbnailsFolder + filename);
+        var response = await _httpClient.GetAsync(uri);
+        
+        return response.IsSuccessStatusCode ? await ReadFileDto(response) : null;
+    }
+
+    public async Task<FileDTO?> GetPermanentFile(string filename, string taskId)
+    {
+        var uri = new Uri(_options.Value.ServiceUrl + _options.Value.CollectionPath + taskId + '/' + filename);
+        var response = await _httpClient.GetAsync(uri);
+        
+        return response.IsSuccessStatusCode ? await ReadFileDto(response) : null;
+    }
+
+    public async Task<bool> DeletePermanentFile(string filename, string taskId)
+    {
+        var uri = new Uri(_options.Value.ServiceUrl + _options.Value.CollectionPath + taskId + '/' + filename);
+        var response = await _httpClient.DeleteAsync(uri);
+        return response.IsSuccessStatusCode;
+    }
+
+    private static async Task<FileDTO?> ReadFileDto(HttpResponseMessage response)
+    {
+        var fileStream = await response.Content.ReadAsStreamAsync();
+        return new FileDTO()
+        {
+            FileStream = fileStream,
+            ContentType = response.Content.Headers.ContentType.MediaType,
+            LastModified = response.Content.Headers.LastModified.Value.Date,
+            SizeKb = fileStream.Length,
+            FileName = response.Content.Headers.ContentDisposition.FileName
+        };
+    }
+    
 }

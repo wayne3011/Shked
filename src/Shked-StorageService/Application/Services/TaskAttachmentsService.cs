@@ -10,6 +10,7 @@ using Amazon.S3.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using ShkedStorageService.Application.DTO;
+using ShkedStorageService.Application.Extensions;
 using ShkedStorageService.Application.Infrastructure;
 
 namespace ShkedStorageService.Application.Services;
@@ -54,10 +55,10 @@ public class TaskAttachmentsService : ITaskAttachmentsService
         });
         await foreach (var response in listObjects.Responses)
         {
-            foreach (var s3Object in response.S3Objects.Where(x => !Regex.IsMatch(x.Key, $"TEMP/.*/{ThumbnailsFolderName}.*")))
+            foreach (var s3Object in response.S3Objects.WithoutThumbnails(ThumbnailsFolderName))
             {
                 string oldPath = s3Object.Key;
-                string fileName = oldPath.Substring(oldPath.LastIndexOf('/') + 1);
+                string fileName = GetFileNameFromKey(oldPath);
                 string oldThumbnailPath = GetTempThumbnailsPath(userId) + fileName;
                 string newPath = taskId + '/' + fileName;
                 string newThumbnailPath = taskId + '/' + ThumbnailsFolderName + fileName;
@@ -92,7 +93,33 @@ public class TaskAttachmentsService : ITaskAttachmentsService
         }
         return resultFileNames;
     }
-    
+
+    private static string GetFileNameFromKey(string path)
+    {
+        return path.Substring(path.LastIndexOf('/') + 1);
+    }
+
+    public async Task<IEnumerable<FileDTO>?> GetListOfTemporaryFiles(string userId)
+    {
+        var response = await _s3client.ListObjectsAsync(_storageOptions.Value.BucketName, GetTempFilesPath(userId));
+        var result = new List<FileDTO>();
+        if (response.HttpStatusCode == HttpStatusCode.OK)
+        {
+            foreach (var s3Object in response.S3Objects.WithoutThumbnails(ThumbnailsFolderName))
+            {
+                string filename = GetFileNameFromKey(s3Object.Key);
+               result.Add(new FileDTO()
+               {
+                   FileName = filename.Substring(0,filename.LastIndexOf('.') == -1 ? filename.Length : filename.LastIndexOf('.')),
+                   Extension = filename.LastIndexOf('.') == -1 ? "" : filename.Substring(filename.LastIndexOf('.'),filename.Length - filename.LastIndexOf('.')),
+                   SizeKb = s3Object.Size,
+                   LastModified = s3Object.LastModified
+               }); 
+            }
+        }
+        return result;
+    }
+
     private async Task DeleteMiniatureAsync(string path, string fileName)
     {
         var deleteMiniatureRequest = new DeleteObjectRequest()
@@ -140,7 +167,7 @@ public class TaskAttachmentsService : ITaskAttachmentsService
                 Key = path + file.FileName,
                 InputStream = miniature.OpenReadStream()
             };
-            uploadMiniatureRequest.Metadata.Add("Content-Type", file.ContentType);
+            uploadMiniatureRequest.Metadata.Add("Content-Type", "image/png");
             var response = await _s3client.PutObjectAsync(uploadMiniatureRequest);
             if (response.HttpStatusCode == HttpStatusCode.OK)
             {

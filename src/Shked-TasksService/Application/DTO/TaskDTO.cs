@@ -18,4 +18,6 @@ public class TaskDTO
     public string Text { get; set; }
     [JsonPropertyName("attachments")]
     public IEnumerable<AttachmentDto> Attachments { get; set; }
+    [JsonPropertyName("groupName")]
+    public string GroupName { get; set; }
 }

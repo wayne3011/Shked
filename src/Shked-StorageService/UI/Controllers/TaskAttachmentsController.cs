@@ -22,6 +22,16 @@ public class TaskAttachmentsController : ControllerBase
         var fileDto = await _taskAttachmentsService.GetTemporaryThumbnailAsync(userIdHeader, fileName);
         return File(fileDto.FileStream, fileDto.ContentType, fileDto.FileName, fileDto.LastModified, new EntityTagHeaderValue('"' + fileDto.LastModified.ToString() + '"'));
     }
+
+    [HttpGet]
+    [Route("TEMP/")]
+    public async Task<ActionResult<IEnumerable<FileDTO>>> GetListOfTemporaryFile()
+    {
+        if(!Request.Headers.TryGetValue("X-User-Id", out var userIdHeader)) return Unauthorized();
+        var fileDtoLists = await _taskAttachmentsService.GetListOfTemporaryFiles(userIdHeader);
+        if (fileDtoLists == null) return StatusCode(500);
+        return Ok(fileDtoLists);
+    }
     [HttpGet]
     [Route("TEMP/{fileName}")]
     public async Task<IActionResult> GetTemporaryFile(string fileName)
@@ -30,6 +40,7 @@ public class TaskAttachmentsController : ControllerBase
         var fileDto = await _taskAttachmentsService.GetTemporaryFileAsync(userIdHeader, fileName);
         return File(fileDto.FileStream, fileDto.ContentType, fileDto.FileName, fileDto.LastModified, new EntityTagHeaderValue('"' + fileDto.LastModified.ToString() + '"'));
     }
+    
     [HttpPost]
     [Route("TEMP/")]
     public async Task<ActionResult<CreationResult>> CreateTemporaryFile([FromForm]IFormFile file, [FromForm]IFormFile thumbnail)
@@ -82,7 +93,7 @@ public class TaskAttachmentsController : ControllerBase
 
     [HttpDelete]
     [Route("{taskId}/{fileName}")]
-    public async Task<ActionResult> DeleteTemporaryFile(string taskId, string fileName)
+    public async Task<ActionResult> DeletePermanentFile(string taskId, string fileName)
     {
         var result = await _taskAttachmentsService.DeletePermanentFileAsync(taskId, fileName);
         if (!result) return StatusCode(500);
