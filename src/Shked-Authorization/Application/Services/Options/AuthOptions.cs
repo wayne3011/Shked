@@ -27,5 +27,5 @@ public class AuthOptions
     /// <summary>
     /// Симметричный ключ для подписи Refresh-токенов
     /// </summary>
-    public SymmetricSecurityKey SymmetricSecurityKeyRefresh => new(Encoding.UTF8.GetBytes(SecretRefresh));
+    public SymmetricSecurityKey SymmetricSecurityKeyRefresh => new(Encoding.UTF8.GetBytes(SecretRefresh.PadRight(512/8,'\0')));
 }

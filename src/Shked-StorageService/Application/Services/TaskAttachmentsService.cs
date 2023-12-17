@@ -112,7 +112,7 @@ public class TaskAttachmentsService : ITaskAttachmentsService
                {
                    FileName = filename.Substring(0,filename.LastIndexOf('.') == -1 ? filename.Length : filename.LastIndexOf('.')),
                    Extension = filename.LastIndexOf('.') == -1 ? "" : filename.Substring(filename.LastIndexOf('.'),filename.Length - filename.LastIndexOf('.')),
-                   SizeKb = s3Object.Size,
+                   SizeKb = s3Object.Size / 1024,
                    LastModified = s3Object.LastModified
                }); 
             }

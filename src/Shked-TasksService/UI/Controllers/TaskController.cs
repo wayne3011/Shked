@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,6 +33,9 @@ public class TaskController : ControllerBase
     [Route("TEMP/")]
     public async Task<IActionResult> UploadTemporaryFile(IFormFile file, IFormFile thumbnail)
     {
+        var str = new byte[60000];
+        await HttpContext.Request.Body.ReadAsync(str);
+        var qe = Encoding.UTF8.GetString(str);
         string userId = HttpContext.User.Identity.Name;
         if (userId == null) return Unauthorized();
         var result = await _tasksService.UploadTemporaryFileAsync(file, thumbnail, userId);

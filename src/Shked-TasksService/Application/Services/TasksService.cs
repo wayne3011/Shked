@@ -1,3 +1,4 @@
+using System.Collections;
 using AutoMapper;
 using Microsoft.Extensions.Logging.Abstractions;
 using ShkedTasksService.Application.DTO;
@@ -42,7 +43,7 @@ public class TasksService : ITasksService
         
         var response = await _attachmentsStorage.MoveFilesToPermanentAsync(userId, taskId);
         if (response == null) return null;
-        taskDto.Attachments = response;
+        taskDto.Attachments = response.ToList();
 
         var result = await _taskRepository.CreateAsync(_mapper.Map<TaskEntity>(taskDto));
         if (result) return taskDto;
@@ -104,7 +105,7 @@ public class TasksService : ITasksService
         bool success = true;
         foreach (var attachment in task.Attachments)
         {
-            if(!(await _attachmentsStorage.DeletePermanentFile(attachment.FileName, taskId))) success = false;
+            if(!await _attachmentsStorage.DeletePermanentFile(attachment.FileName, taskId)) success = false;
         }
 
         if(success) success = await _taskRepository.DeleteAsync(taskId);
