@@ -12,10 +12,10 @@ using ShkedTasksService.UI.ModelBinders;
 namespace ShkedTasksService.UI.Controllers;
 
 [Route("API/[controller]")]
-public class TaskController : ControllerBase
+public class TasksController : ControllerBase
 {
     private readonly ITasksService _tasksService;
-    public TaskController(ITasksService tasksService)
+    public TasksController(ITasksService tasksService)
     {
         _tasksService = tasksService;
     }
@@ -33,9 +33,6 @@ public class TaskController : ControllerBase
     [Route("TEMP/")]
     public async Task<IActionResult> UploadTemporaryFile(IFormFile file, IFormFile thumbnail)
     {
-        var str = new byte[60000];
-        await HttpContext.Request.Body.ReadAsync(str);
-        var qe = Encoding.UTF8.GetString(str);
         string userId = HttpContext.User.Identity.Name;
         if (userId == null) return Unauthorized();
         var result = await _tasksService.UploadTemporaryFileAsync(file, thumbnail, userId);

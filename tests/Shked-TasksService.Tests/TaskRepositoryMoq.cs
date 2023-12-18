@@ -164,7 +164,8 @@ private static List<TaskEntity> _taskEntities = new List<TaskEntity>
             .Returns<string>(obj => Task.FromResult(_taskEntities.Find(x => x.Id == obj)));
         mock.Setup(obj => obj.CreateAsync(It.IsAny<TaskEntity>()))
             .Returns(() => Task.FromResult(true));
-        mock.Setup(obj => obj.DeleteAsync(It.IsAny<string>())).Returns(() => Task.FromResult(true));
+        mock.Setup(obj => obj.DeleteAsync(It.IsAny<string>()))
+            .Returns(() => Task.FromResult(true));
         mock.Setup(obj => obj.GetActualTasks(It.IsAny<string>(), It.IsAny<string>()))
             .Returns<string, string>((groupName, userId) => Task.FromResult(_taskEntities.Where(task =>
                 task.GroupName == groupName
