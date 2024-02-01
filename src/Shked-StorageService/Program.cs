@@ -18,7 +18,7 @@ builder.Services.AddAWSService<IAmazonS3>(new AWSOptions()
         ServiceURL = AWSOptions["ServiceUrl"],
         Timeout = TimeSpan.FromSeconds(5),
     },
-    Profile = "s3"
+    Profile = "s3",
 });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.Configure<StorageOptions>(AWSOptions);
@@ -26,7 +26,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 var app = builder.Build();
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsProduction())
 {
     app.UseSwagger();
 }

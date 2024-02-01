@@ -7,6 +7,8 @@ services:
     container_name: shked-auth-service
     image: wayne301/shked-authorizationservice:dev
     restart: always
+    ports:
+      - "100:100"
     depends_on:
       - mongodb
     environment:
@@ -20,6 +22,8 @@ services:
     restart: always
     depends_on: 
       - mongodb
+    ports:
+      - "110:110"
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://+:110/
@@ -29,17 +33,23 @@ services:
     container_name: shked-storage-service
     image: wayne301/shked-storageservice:dev
     restart: always
+    ports:
+      - "130:130"
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://+:130/
     networks:
       - shked-dev
+    extra_hosts:
+      - "shked-tasks.host.docker.internal:host-gateway"
   groupservice:
     container_name: shked-group-service
     image: wayne301/shked-groupservice:dev
     depends_on: 
       - mongodb
     restart: always
+    ports:
+      - "120:120"
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://+:120/
@@ -51,6 +61,8 @@ services:
     depends_on: 
       - mongodb
     restart: always
+    ports:
+      - "140:140"
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker 
       - ASPNETCORE_URLS=http://+:140/
@@ -67,38 +79,25 @@ services:
       - shked-dev
   minio:
     image: minio/minio
-    container_name: minio
     ports:
-      - '9000:9000'
-      - '9001:9001'
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - minio_storage:/data
     environment:
       MINIO_ROOT_USER: storage-api
       MINIO_ROOT_PASSWORD: 12345678
-      MINIO_HTTP_TRACE: /dev/stdout
+      MINIO_DOMAIN: host.docker.internal
     command: server --console-address ":9001" /data
-    networks:
-      shked-dev:
-        aliases:
-          - shked-tasks.minio
-          - minio
+    container_name: minio      
   nginx:
-    image: nginx:mainline
+    image: nginx
     container_name: nginx
-    depends_on:   
-      - authservice
-      - userservice
-      - groupservice
-      - taskservice
-      - storageservice
-    ports:
-      - '443:443'
-      - '80:80'
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/index.html:/etc/nginx/html/index.html
-    networks:
+      - ./../nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8080:80"
+    networks: 
       - shked-dev
 volumes:
   mongo-db:
