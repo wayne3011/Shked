@@ -1,0 +1,131 @@
+openapi: 3.0.1
+info:
+  title: 'Shked-Authorization, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+  version: '1.0'
+paths:
+  /API/Auth/SignUp:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpDTO'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/SignUpDTO'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/SignUpDTO'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/AuthDTO'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthDTO'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/AuthDTO'
+  /API/Auth/SignIn:
+    get:
+      tags:
+        - Auth
+      parameters:
+        - name: Email
+          in: query
+          schema:
+            type: string
+        - name: Password
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/AuthDTO'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthDTO'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/AuthDTO'
+  /API/Auth/Refresh:
+    get:
+      tags:
+        - Auth
+      parameters:
+        - name: refreshToken
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/AuthDTO'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthDTO'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/AuthDTO'
+  /API/Auth/Logout:
+    delete:
+      tags:
+        - Auth
+      parameters:
+        - name: refreshToken
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /API/Auth/LogoutFromAll:
+    delete:
+      tags:
+        - Auth
+      responses:
+        '200':
+          description: Success
+components:
+  schemas:
+    AuthDTO:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          nullable: true
+        refreshToken:
+          type: string
+          nullable: true
+        uuid:
+          type: string
+          nullable: true
+      additionalProperties: false
+    SignUpDTO:
+      type: object
+      properties:
+        fullName:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        password:
+          type: string
+          nullable: true
+        group:
+          type: string
+          nullable: true
+      additionalProperties: false

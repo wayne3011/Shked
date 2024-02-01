@@ -1,0 +1,211 @@
+openapi: 3.0.1
+info:
+  title: 'Shked-StorageService, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+  version: '1.0'
+paths:
+  '/StorageAPI/TaskAttachments/TEMP/Thumbnails/{fileName}':
+    get:
+      tags:
+        - TaskAttachments
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /StorageAPI/TaskAttachments/TEMP:
+    get:
+      tags:
+        - TaskAttachments
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileDTO'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileDTO'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileDTO'
+    post:
+      tags:
+        - TaskAttachments
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                thumbnail:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                style: form
+              thumbnail:
+                style: form
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/CreationResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreationResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/CreationResult'
+  '/StorageAPI/TaskAttachments/TEMP/{fileName}':
+    get:
+      tags:
+        - TaskAttachments
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+    delete:
+      tags:
+        - TaskAttachments
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /StorageAPI/TaskAttachments/TEMP/ToPermanent:
+    delete:
+      tags:
+        - TaskAttachments
+      parameters:
+        - name: taskId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileDTO'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileDTO'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileDTO'
+  '/StorageAPI/TaskAttachments/{taskId}/{fileName}':
+    get:
+      tags:
+        - TaskAttachments
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+    delete:
+      tags:
+        - TaskAttachments
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  '/StorageAPI/TaskAttachments/{taskId}/Thumbnails/{fileName}':
+    get:
+      tags:
+        - TaskAttachments
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+components:
+  schemas:
+    CreationResult:
+      type: object
+      properties:
+        filePath:
+          type: string
+          nullable: true
+        thumbnailPath:
+          type: string
+          nullable: true
+      additionalProperties: false
+    FileDTO:
+      type: object
+      properties:
+        fileName:
+          type: string
+          nullable: true
+        contentType:
+          type: string
+          nullable: true
+        sizeKb:
+          type: integer
+          format: int64
+        extension:
+          type: string
+          nullable: true
+        lastModified:
+          type: string
+          format: date-time
+      additionalProperties: false
