@@ -1,0 +1,210 @@
+openapi: 3.0.1
+info:
+  title: 'Shked-TasksService, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+  version: '1.0'
+paths:
+  /API/Tasks:
+    get:
+      tags:
+        - Tasks
+      responses:
+        '200':
+          description: Success
+    post:
+      tags:
+        - Tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskDTO'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/TaskDTO'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/TaskDTO'
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/TaskDTO'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDTO'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/TaskDTO'
+  /API/Tasks/TEMP:
+    post:
+      tags:
+        - Tasks
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                thumbnail:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                style: form
+              thumbnail:
+                style: form
+      responses:
+        '200':
+          description: Success
+    get:
+      tags:
+        - Tasks
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/AttachmentDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttachmentDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/AttachmentDto'
+  '/API/Tasks/TEMP/{fileName}':
+    delete:
+      tags:
+        - Tasks
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+    get:
+      tags:
+        - Tasks
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  '/API/Tasks/TEMP/Thumbnails/{fileName}':
+    get:
+      tags:
+        - Tasks
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  '/API/Tasks/{taskId}/{fileName}':
+    get:
+      tags:
+        - Tasks
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  '/API/Tasks/{taskId}/Thumbnails/{fileName}':
+    get:
+      tags:
+        - Tasks
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  '/API/Tasks/{taskId}':
+    delete:
+      tags:
+        - Tasks
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+components:
+  schemas:
+    AttachmentDto:
+      type: object
+      properties:
+        fileName:
+          type: string
+          nullable: true
+        extension:
+          type: string
+          nullable: true
+        sizeKb:
+          type: integer
+          format: int64
+      additionalProperties: false
+    TaskDTO:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        userID:
+          type: string
+          nullable: true
+        deadline:
+          type: string
+          format: date-time
+        isPublic:
+          type: boolean
+        lessonOrdinal:
+          type: integer
+          format: int32
+        text:
+          type: string
+          nullable: true
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentDto'
+          nullable: true
+        groupName:
+          type: string
+          nullable: true
+      additionalProperties: false

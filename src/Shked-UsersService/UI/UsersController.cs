@@ -12,6 +12,7 @@ public class UsersController : ControllerBase
         _usersService = usersService;
     }
     [Route("{id}")]
+    [HttpGet]
     public async Task<IActionResult> GetById(string id)
     {
         var UserDto = await _usersService.GetById(id);

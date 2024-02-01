@@ -43,7 +43,7 @@ public class TaskAttachmentsController : ControllerBase
     
     [HttpPost]
     [Route("TEMP/")]
-    public async Task<ActionResult<CreationResult>> CreateTemporaryFile([FromForm]IFormFile file, [FromForm]IFormFile thumbnail)
+    public async Task<ActionResult<CreationResult>> CreateTemporaryFile(IFormFile file, IFormFile thumbnail)
         {
         if(!Request.Headers.TryGetValue("X-User-Id", out var userIdHeader)) return Unauthorized();
         var result = await _taskAttachmentsService.CreateTemporaryFileAsync(thumbnail, file, userIdHeader);

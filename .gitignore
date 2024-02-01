@@ -3,3 +3,5 @@
 .idea/
 *.user
 *appsettings.*.json
+global.json
+**/.config/**

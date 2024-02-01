@@ -54,7 +54,7 @@ var app = builder.Build();
 if (!app.Environment.IsProduction())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(x => x.SwaggerEndpoint("/swagger/v1/swagger.yaml", "Auth Service Open API"));
 }
 
 

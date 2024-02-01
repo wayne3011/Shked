@@ -1,0 +1,19 @@
+openapi: 3.0.1
+info:
+  title: 'Shked-UsersService, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'
+  version: '1.0'
+paths:
+  '/API/Users/{id}':
+    get:
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+components: { }
